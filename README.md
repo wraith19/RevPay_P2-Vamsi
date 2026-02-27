@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # RevPay - Secure Digital Payments & Money Management
 
 A full-stack monolithic financial web application built with Spring Boot, enabling secure digital payments and money management for both Personal and Business users.
@@ -179,3 +180,7 @@ Run tests: `./mvnw test`
 ## Author
 
 Developed as a full-stack monolithic web application project demonstrating enterprise-level Java development with Spring Boot.
+=======
+# RevPay_P2-Vamsi
+RevPay is a full-stack monolithic financial web application that enables secure digital payments and money management for both personal and business users. Personal users can send/request money, manage payment methods, and track transactions through an intuitive web interface.
+>>>>>>> 246f85f3ba5ca9351ce925c11ccf4f7b505532c5
