@@ -55,12 +55,16 @@ public interface ITransactionRepository extends JpaRepository<Transaction, Long>
                         "AND (:status IS NULL OR t.status = :status) " +
                         "AND (:startDate IS NULL OR t.timestamp >= :startDate) " +
                         "AND (:endDate IS NULL OR t.timestamp <= :endDate) " +
+                        "AND (:minAmount IS NULL OR t.amount >= :minAmount) " +
+                        "AND (:maxAmount IS NULL OR t.amount <= :maxAmount) " +
                         "ORDER BY t.timestamp DESC")
         List<Transaction> findByFilters(@Param("user") User user,
                         @Param("type") TransactionType type,
                         @Param("status") TransactionStatus status,
                         @Param("startDate") LocalDateTime startDate,
-                        @Param("endDate") LocalDateTime endDate);
+                        @Param("endDate") LocalDateTime endDate,
+                        @Param("minAmount") BigDecimal minAmount,
+                        @Param("maxAmount") BigDecimal maxAmount);
 
         @Query("SELECT COALESCE(SUM(t.amount), 0) FROM Transaction t WHERE t.receiver = :user AND t.status = com.rev.app.entity.TransactionStatus.SUCCESS")
         BigDecimal sumReceivedAmount(@Param("user") User user);

@@ -39,12 +39,22 @@ public class TransactionController {
     @PostMapping("/send")
     public String sendMoney(@RequestParam String recipient,
             @RequestParam BigDecimal amount,
+            @RequestParam(required = false) String pin,
             @RequestParam(required = false) String note,
             Authentication authentication,
             org.springframework.web.servlet.mvc.support.RedirectAttributes redirectAttributes) {
         try {
             User sender = userService.findByEmail(authentication.getName())
                     .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+
+            String pinSetupRedirect = ensurePinConfigured(sender, redirectAttributes, "/transactions/send");
+            if (pinSetupRedirect != null) {
+                return pinSetupRedirect;
+            }
+            if (pin == null || pin.isBlank() || !userService.verifyTransactionPin(sender.getId(), pin)) {
+                redirectAttributes.addFlashAttribute("error", "Invalid transaction PIN.");
+                return "redirect:/transactions/send";
+            }
 
             transactionService.sendMoney(sender, recipient, amount, note);
             redirectAttributes.addFlashAttribute("success", "Money sent successfully!");
@@ -55,11 +65,23 @@ public class TransactionController {
         }
     }
 
+    private String ensurePinConfigured(User user,
+            org.springframework.web.servlet.mvc.support.RedirectAttributes redirectAttributes,
+            String returnTo) {
+        if (user.getTransactionPin() == null || user.getTransactionPin().isBlank()) {
+            redirectAttributes.addFlashAttribute("error", "Set your transaction PIN before making transactions.");
+            return "redirect:/profile/set-pin?returnTo=" + returnTo;
+        }
+        return null;
+    }
+
     @GetMapping("/history")
     public String transactionHistory(@RequestParam(required = false) String type,
             @RequestParam(required = false) String status,
             @RequestParam(required = false) String startDate,
             @RequestParam(required = false) String endDate,
+            @RequestParam(required = false) BigDecimal minAmount,
+            @RequestParam(required = false) BigDecimal maxAmount,
             @RequestParam(required = false) String search,
             Authentication authentication,
             Model model) {
@@ -70,7 +92,8 @@ public class TransactionController {
 
         if (search != null && !search.isEmpty()) {
             transactions = transactionService.searchTransactions(user, search);
-        } else if (type != null || status != null || startDate != null || endDate != null) {
+        } else if (type != null || status != null || startDate != null || endDate != null
+                || minAmount != null || maxAmount != null) {
             TransactionType txnType = type != null && !type.isEmpty() ? TransactionType.valueOf(type) : null;
             TransactionStatus txnStatus = status != null && !status.isEmpty() ? TransactionStatus.valueOf(status)
                     : null;
@@ -78,7 +101,7 @@ public class TransactionController {
                     : null;
             LocalDateTime end = endDate != null && !endDate.isEmpty() ? LocalDate.parse(endDate).atTime(LocalTime.MAX)
                     : null;
-            transactions = transactionService.filterTransactions(user, txnType, txnStatus, start, end);
+            transactions = transactionService.filterTransactions(user, txnType, txnStatus, start, end, minAmount, maxAmount);
         } else {
             transactions = transactionService.getTransactionHistory(user);
         }
