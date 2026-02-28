@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="~{fragments/layout :: head('User Management')}"></head>
+
+<body>
+<nav th:replace="~{fragments/layout :: navbar}"></nav>
+<div class="main-content">
+    <div th:replace="~{fragments/layout :: alerts}"></div>
+    <div class="page-header">
+        <h1>User Management</h1>
+        <a th:href="@{/admin}" class="btn btn-secondary">Back to Admin Dashboard</a>
+    </div>
+
+    <div class="card form-card mb-3">
+        <form th:action="@{/admin/users}" method="get" class="app-form inline-form">
+            <div class="form-group">
+                <label for="role">Filter by Role</label>
+                <select id="role" name="role" class="form-control">
+                    <option value="">All</option>
+                    <option th:each="r : ${roles}" th:value="${r}" th:text="${r}" th:selected="${selectedRole == r}"></option>
+                </select>
+            </div>
+            <button type="submit" class="btn btn-primary">Apply Filter</button>
+        </form>
+    </div>
+
+    <div class="card">
+        <div th:if="${#lists.isEmpty(users)}" class="empty-state">
+            <p>No users found for selected filter.</p>
+        </div>
+        <table th:unless="${#lists.isEmpty(users)}" class="data-table">
+            <thead>
+            <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Role</th>
+                <th>Business Verified</th>
+                <th>Status</th>
+                <th>Action</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="u : ${users}">
+                <td th:text="${u.id}">1</td>
+                <td th:text="${u.fullName}">User</td>
+                <td th:text="${u.email}">user@revpay.com</td>
+                <td th:text="${u.role}">PERSONAL</td>
+                <td th:text="${u.businessVerified != null && u.businessVerified ? 'Yes' : 'No'}">No</td>
+                <td>
+                    <span class="badge" th:classappend="${u.enabled != null && u.enabled} ? 'badge-success' : 'badge-danger'"
+                          th:text="${u.enabled != null && u.enabled ? 'Enabled' : 'Disabled'}">Enabled</span>
+                </td>
+                <td>
+                    <form th:if="${u.role.name() != 'ADMIN'}" th:action="@{'/admin/users/' + ${u.id} + '/status'}" method="post">
+                        <input type="hidden" name="enabled" th:value="${!(u.enabled != null && u.enabled)}">
+                        <button type="submit" class="btn btn-sm"
+                                th:classappend="${u.enabled != null && u.enabled} ? 'btn-danger' : 'btn-success'"
+                                th:text="${u.enabled != null && u.enabled ? 'Disable' : 'Enable'}">Disable</button>
+                    </form>
+                    <span th:if="${u.role.name() == 'ADMIN'}">Protected</span>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+<div th:replace="~{fragments/layout :: scripts}"></div>
+</body>
+
+</html>

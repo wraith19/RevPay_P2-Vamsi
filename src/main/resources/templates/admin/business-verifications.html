@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="~{fragments/layout :: head('Business Verifications')}"></head>
+
+<body>
+<nav th:replace="~{fragments/layout :: navbar}"></nav>
+<div class="main-content">
+    <div th:replace="~{fragments/layout :: alerts}"></div>
+    <div class="page-header">
+        <h1>Pending Business Verifications</h1>
+        <a th:href="@{/admin}" class="btn btn-secondary">Back to Admin Dashboard</a>
+    </div>
+
+    <div class="card">
+        <div th:if="${#lists.isEmpty(users)}" class="empty-state">
+            <p>No pending business verifications.</p>
+        </div>
+        <table th:unless="${#lists.isEmpty(users)}" class="data-table">
+            <thead>
+            <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Business</th>
+                <th>Tax ID</th>
+                <th>Created</th>
+                <th>Action</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="u : ${users}">
+                <td th:text="${u.id}">1</td>
+                <td th:text="${u.fullName}">User</td>
+                <td th:text="${u.email}">user@revpay.com</td>
+                <td th:text="${u.businessName}">Business</td>
+                <td th:text="${u.taxId != null ? u.taxId : '-'}">-</td>
+                <td th:text="${u.createdAt != null ? #temporals.format(u.createdAt, 'MMM dd, yyyy') : '-'}">-</td>
+                <td>
+                    <form th:action="@{'/admin/business-verifications/' + ${u.id} + '/approve'}" method="post">
+                        <button type="submit" class="btn btn-sm btn-success">Approve</button>
+                    </form>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+<div th:replace="~{fragments/layout :: scripts}"></div>
+</body>
+
+</html>

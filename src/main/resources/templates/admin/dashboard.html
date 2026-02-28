@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="~{fragments/layout :: head('Admin Dashboard')}"></head>
+
+<body>
+<nav th:replace="~{fragments/layout :: navbar}"></nav>
+<div class="main-content">
+    <div th:replace="~{fragments/layout :: alerts}"></div>
+    <div class="page-header">
+        <h1>Admin Dashboard</h1>
+        <div class="d-flex gap-2">
+            <a th:href="@{/admin/business-verifications}" class="btn btn-secondary">Business Verifications</a>
+            <a th:href="@{/admin/users}" class="btn btn-primary">User Management</a>
+        </div>
+    </div>
+
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-info">
+                <h3 th:text="${pendingLoanCount}">0</h3>
+                <p>Pending Loans</p>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-info">
+                <h3 th:text="${pendingBusinessVerifications}">0</h3>
+                <p>Pending Business Verifications</p>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-info">
+                <h3 th:text="${totalUsers}">0</h3>
+                <p>Total Users</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header">
+            <h2>Pending Loan Queue</h2>
+            <a th:href="@{/loans}" class="link">View All <i class="bi bi-arrow-right"></i></a>
+        </div>
+        <div th:if="${#lists.isEmpty(pendingLoans)}" class="empty-state">
+            <p>No pending loans.</p>
+        </div>
+        <table th:unless="${#lists.isEmpty(pendingLoans)}" class="data-table">
+            <thead>
+            <tr>
+                <th>ID</th>
+                <th>Business User</th>
+                <th>Amount</th>
+                <th>Applied</th>
+                <th>Action</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="loan : ${pendingLoans}">
+                <td th:text="${loan.id}">1</td>
+                <td th:text="${loan.businessUser != null ? loan.businessUser.email : '-'}">business@revpay.com</td>
+                <td>$<span th:text="${#numbers.formatDecimal(loan.amount, 1, 2)}">0.00</span></td>
+                <td th:text="${#temporals.format(loan.appliedAt, 'MMM dd, yyyy')}">Jan 01, 2026</td>
+                <td><a th:href="@{'/loans/' + ${loan.id}}" class="btn btn-sm btn-secondary">Review</a></td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+<div th:replace="~{fragments/layout :: scripts}"></div>
+</body>
+
+</html>
