@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="~{fragments/layout :: head('Set Transaction PIN')}"></head>
+
+<body>
+    <nav th:replace="~{fragments/layout :: navbar}"></nav>
+    <div class="main-content">
+        <div th:replace="~{fragments/layout :: alerts}"></div>
+        <div class="page-header">
+            <h1>Set Transaction PIN</h1>
+        </div>
+        <div class="card form-card">
+            <form th:action="@{/profile/set-pin}" method="post" class="app-form">
+                <input th:if="${returnTo != null}" type="hidden" name="returnTo" th:value="${returnTo}">
+                <div class="form-group"><label for="pin">Transaction PIN (4-6 digits) *</label><input type="password"
+                        id="pin" name="pin" required pattern="[0-9]{4,6}" maxlength="6" class="form-control"
+                        placeholder="Enter 4-6 digit PIN"></div>
+                <div class="form-group"><label for="confirmPin">Confirm PIN *</label><input type="password"
+                        id="confirmPin" name="confirmPin" required class="form-control" placeholder="Confirm PIN"></div>
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">Set PIN</button>
+                    <a th:href="@{/profile}" class="btn btn-secondary">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </div>
+    <footer th:replace="~{fragments/layout :: footer}"></footer>
+    <div th:replace="~{fragments/layout :: scripts}"></div></body>
+
+</html>
+

@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="~{fragments/layout :: head('Send Money')}"></head>
+
+<body>
+    <nav th:replace="~{fragments/layout :: navbar}"></nav>
+    <div class="main-content">
+        <div th:replace="~{fragments/layout :: alerts}"></div>
+        <div class="page-header">
+            <h1>Send Money</h1>
+        </div>
+        <div class="card form-card">
+            <form th:action="@{/transactions/send}" method="post" class="app-form">
+                <div class="form-group">
+                    <label for="recipient">Recipient (Email, Phone, or User ID) *</label>
+                    <input type="text" id="recipient" name="recipient" required class="form-control"
+                        placeholder="john@example.com or +1234567890">
+                </div>
+                <div class="form-group">
+                    <label for="amount">Amount ($) *</label>
+                    <input type="number" id="amount" name="amount" required min="0.01" step="0.01" class="form-control"
+                        placeholder="0.00">
+                </div>
+                <div class="form-group">
+                    <label for="pin">Transaction PIN *</label>
+                    <input type="password" id="pin" name="pin" required pattern="[0-9]{4,6}" maxlength="6"
+                        class="form-control" placeholder="Enter 4-6 digit PIN">
+                </div>
+                <div class="form-group">
+                    <label for="note">Note (Optional)</label>
+                    <textarea id="note" name="note" class="form-control" rows="3"
+                        placeholder="What's this for?"></textarea>
+                </div>
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">Send Money</button>
+                    <a th:href="@{/dashboard}" class="btn btn-secondary">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </div>
+    <footer th:replace="~{fragments/layout :: footer}"></footer>
+    <div th:replace="~{fragments/layout :: scripts}"></div></body>
+
+</html>
+

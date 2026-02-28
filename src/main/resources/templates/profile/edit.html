@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="~{fragments/layout :: head('Profile')}"></head>
+
+<body>
+    <nav th:replace="~{fragments/layout :: navbar}"></nav>
+    <div class="main-content">
+        <div th:replace="~{fragments/layout :: alerts}"></div>
+        <div class="page-header">
+            <h1>My Profile</h1>
+            <div class="page-actions">
+                <a th:href="@{/profile/change-password}" class="btn btn-secondary"><i class="bi bi-shield-lock"></i> Change Password</a>
+                <a th:href="@{/profile/set-pin}" class="btn btn-secondary"><i class="bi bi-key"></i> Set PIN</a>
+            </div>
+        </div>
+        <div class="card form-card">
+            <form th:action="@{/profile/update}" method="post" class="app-form">
+                <div class="form-row">
+                    <div class="form-group"><label for="fullName">Full Name *</label><input type="text" id="fullName"
+                            name="fullName" required th:value="${user.fullName}" class="form-control"></div>
+                    <div class="form-group"><label for="email">Email</label><input type="email" id="email"
+                            th:value="${user.email}" class="form-control" disabled></div>
+                </div>
+                <div class="form-group"><label for="phone">Phone *</label><input type="tel" id="phone" name="phone"
+                        required th:value="${user.phone}" class="form-control"></div>
+
+                <div th:if="${user.role.name() == 'BUSINESS'}">
+                    <h3 class="section-title">Business Information</h3>
+                    <div class="form-row">
+                        <div class="form-group"><label for="businessName">Business Name</label><input type="text"
+                                id="businessName" name="businessName" th:value="${user.businessName}"
+                                class="form-control"></div>
+                        <div class="form-group"><label for="businessType">Business Type</label><input type="text"
+                                id="businessType" name="businessType" th:value="${user.businessType}"
+                                class="form-control"></div>
+                    </div>
+                    <div class="form-group"><label for="businessAddress">Business Address</label><textarea
+                            id="businessAddress" name="businessAddress" class="form-control" rows="2"
+                            th:text="${user.businessAddress}"></textarea></div>
+                    <div class="form-group"><label for="businessContactInfo">Contact Info</label><input type="text"
+                            id="businessContactInfo" name="businessContactInfo" th:value="${user.businessContactInfo}"
+                            class="form-control"></div>
+                    <div class="form-group">
+                        <label>Verification Status</label>
+                        <span th:if="${user.businessVerified}" class="badge badge-success"><i class="bi bi-patch-check"></i> Verified</span>
+                        <span th:unless="${user.businessVerified}" class="badge badge-warning">Pending Verification</span>
+                    </div>
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">Update Profile</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    <footer th:replace="~{fragments/layout :: footer}"></footer>
+    <div th:replace="~{fragments/layout :: scripts}"></div>
+</body>
+
+</html>

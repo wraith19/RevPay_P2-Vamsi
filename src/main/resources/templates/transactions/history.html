@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="~{fragments/layout :: head('Transaction History')}"></head>
+
+<body>
+    <nav th:replace="~{fragments/layout :: navbar}"></nav>
+    <div class="main-content">
+        <div th:replace="~{fragments/layout :: alerts}"></div>
+        <div class="page-header">
+            <h1>Transaction History</h1>
+            <div class="page-actions">
+                <a th:href="@{/transactions/export/csv}" class="btn btn-secondary"><i class="bi bi-file-earmark-spreadsheet"></i> Export CSV</a>
+                <a th:href="@{/transactions/export/pdf}" class="btn btn-secondary"><i class="bi bi-file-earmark-pdf"></i> Export PDF</a>
+            </div>
+        </div>
+
+        <div class="card filter-card">
+            <form method="get" th:action="@{/transactions/history}" class="filter-form">
+                <div class="form-group">
+                    <label>Type</label>
+                    <select name="type" class="form-control">
+                        <option value="">All Types</option>
+                        <option th:each="t : ${transactionTypes}" th:value="${t}" th:text="${t}"></option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Status</label>
+                    <select name="status" class="form-control">
+                        <option value="">All Status</option>
+                        <option th:each="s : ${transactionStatuses}" th:value="${s}" th:text="${s}"></option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>From Date</label>
+                    <input type="date" name="startDate" class="form-control">
+                </div>
+                <div class="form-group">
+                    <label>To Date</label>
+                    <input type="date" name="endDate" class="form-control">
+                </div>
+                <div class="form-group">
+                    <label>Min Amount</label>
+                    <input type="number" name="minAmount" class="form-control" min="0" step="0.01" placeholder="0.00">
+                </div>
+                <div class="form-group">
+                    <label>Max Amount</label>
+                    <input type="number" name="maxAmount" class="form-control" min="0" step="0.01" placeholder="0.00">
+                </div>
+                <div class="form-group">
+                    <label>Search</label>
+                    <input type="text" name="search" class="form-control" placeholder="Name or Transaction ID">
+                </div>
+                <button type="submit" class="btn btn-primary">Filter</button>
+            </form>
+        </div>
+
+        <div class="card">
+            <div th:if="${#lists.isEmpty(transactions)}" class="empty-state">
+                <p>No transactions found.</p>
+            </div>
+            <table th:unless="${#lists.isEmpty(transactions)}" class="data-table">
+                <thead>
+                    <tr>
+                        <th>Transaction ID</th>
+                        <th>Date</th>
+                        <th>Type</th>
+                        <th>Amount</th>
+                        <th>Sender</th>
+                        <th>Receiver</th>
+                        <th>Status</th>
+                        <th>Note</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="txn : ${transactions}">
+                        <td class="txn-id" th:text="${txn.transactionId}">TXN-123</td>
+                        <td th:text="${#temporals.format(txn.timestamp, 'MMM dd, yyyy HH:mm')}">Jan 01</td>
+                        <td><span class="badge" th:classappend="'badge-' + ${txn.type.name().toLowerCase()}"
+                                th:text="${txn.type}">SEND</span></td>
+                        <td class="amount"
+                            th:classappend="${txn.type.name() == 'SEND' || txn.type.name() == 'WITHDRAWAL'} ? 'amount-out' : 'amount-in'"
+                            th:text="${(txn.type.name() == 'SEND' || txn.type.name() == 'WITHDRAWAL') ? '-$' : '+$'} + ${#numbers.formatDecimal(txn.amount, 1, 2)}">
+                            $0.00</td>
+                        <td th:text="${txn.sender != null} ? ${txn.sender.fullName} : '-'">-</td>
+                        <td th:text="${txn.receiver != null} ? ${txn.receiver.fullName} : '-'">-</td>
+                        <td><span class="badge" th:classappend="'badge-' + ${txn.status.name().toLowerCase()}"
+                                th:text="${txn.status}">SUCCESS</span></td>
+                        <td th:text="${txn.note}">-</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <footer th:replace="~{fragments/layout :: footer}"></footer>
+    <div th:replace="~{fragments/layout :: scripts}"></div>
+</body>
+
+</html>

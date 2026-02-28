@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="~{fragments/layout :: head('Payment Methods')}"></head>
+
+<body>
+    <nav th:replace="~{fragments/layout :: navbar}"></nav>
+    <div class="main-content">
+        <div th:replace="~{fragments/layout :: alerts}"></div>
+        <div class="page-header">
+            <h1>Payment Methods</h1>
+            <a th:href="@{/payment-methods/add}" class="btn btn-primary">+ Add Card</a>
+        </div>
+        <div class="card">
+            <div th:if="${#lists.isEmpty(paymentMethods)}" class="empty-state">
+                <p>No payment methods. Add one to start transacting!</p>
+            </div>
+            <div class="cards-grid" th:unless="${#lists.isEmpty(paymentMethods)}">
+                <div th:each="pm : ${paymentMethods}" class="payment-card"
+                    th:classappend="${pm.isDefault} ? 'payment-card-default' : ''">
+                    <div class="card-type" th:text="${pm.type}">CREDIT_CARD</div>
+                    <div class="card-number" th:text="${pm.maskedCardNumber}">****-****-****-1234</div>
+                    <div class="card-holder" th:text="${pm.cardHolderName}">John Doe</div>
+                    <div class="card-expiry">Exp: <span th:text="${pm.expiryDate}">12/25</span></div>
+                    <div th:if="${pm.isDefault}" class="default-badge"><i class="bi bi-check-circle"></i> Default</div>
+                    <div class="card-actions">
+                        <form th:unless="${pm.isDefault}" th:action="@{'/payment-methods/' + ${pm.id} + '/set-default'}"
+                            method="post" style="display:inline;">
+                            <button type="submit" class="btn btn-sm btn-secondary">Set Default</button>
+                        </form>
+                        <form th:action="@{'/payment-methods/' + ${pm.id} + '/delete'}" method="post"
+                            style="display:inline;">
+                            <button type="submit" class="btn btn-sm btn-danger"
+                                onclick="return confirm('Delete this payment method?')">Delete</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <footer th:replace="~{fragments/layout :: footer}"></footer>
+    <div th:replace="~{fragments/layout :: scripts}"></div>
+</body>
+
+</html>

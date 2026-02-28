@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="~{fragments/layout :: head('Request Money')}"></head>
+
+<body>
+    <nav th:replace="~{fragments/layout :: navbar}"></nav>
+    <div class="main-content">
+        <div th:replace="~{fragments/layout :: alerts}"></div>
+        <div class="page-header">
+            <h1>Request Money</h1>
+        </div>
+        <div class="card form-card">
+            <form th:action="@{/requests/create}" method="post" class="app-form">
+                <div class="form-group">
+                    <label for="requesteeIdentifier">Request From (Email or Phone) *</label>
+                    <input type="text" id="requesteeIdentifier" name="requesteeIdentifier" required class="form-control"
+                        placeholder="john@example.com">
+                </div>
+                <div class="form-group">
+                    <label for="amount">Amount ($) *</label>
+                    <input type="number" id="amount" name="amount" required min="0.01" step="0.01" class="form-control"
+                        placeholder="0.00">
+                </div>
+                <div class="form-group">
+                    <label for="purpose">Purpose (Optional)</label>
+                    <textarea id="purpose" name="purpose" class="form-control" rows="3"
+                        placeholder="What's this for?"></textarea>
+                </div>
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">Send Request</button>
+                    <a th:href="@{/dashboard}" class="btn btn-secondary">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </div>
+    <footer th:replace="~{fragments/layout :: footer}"></footer>
+    <div th:replace="~{fragments/layout :: scripts}"></div></body>
+
+</html>
+

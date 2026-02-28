@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="~{fragments/layout :: head('Add Funds')}"></head>
+
+<body>
+    <nav th:replace="~{fragments/layout :: navbar}"></nav>
+    <div class="main-content">
+        <div th:replace="~{fragments/layout :: alerts}"></div>
+        <div class="page-header">
+            <h1>Add Funds to Wallet</h1>
+        </div>
+        <div class="card wallet-balance-card">
+            <p>Current Balance: <strong>$<span th:text="${#numbers.formatDecimal(balance, 1, 2)}">0.00</span></strong>
+            </p>
+        </div>
+        <div class="card form-card">
+            <form th:action="@{/wallet/add-funds}" method="post" class="app-form">
+                <div class="form-group">
+                    <label for="paymentMethodId">Select Payment Method *</label>
+                    <select id="paymentMethodId" name="paymentMethodId" required class="form-control">
+                        <option value="">Choose a card</option>
+                        <option th:each="pm : ${paymentMethods}" th:value="${pm.id}"
+                            th:text="${pm.maskedCardNumber + ' (' + pm.type + ')'}"></option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="amount">Amount ($) *</label>
+                    <input type="number" id="amount" name="amount" required min="1" step="0.01" class="form-control"
+                        placeholder="0.00">
+                </div>
+                <div class="form-group">
+                    <label for="pin">Transaction PIN *</label>
+                    <input type="password" id="pin" name="pin" required pattern="[0-9]{4,6}" maxlength="6"
+                        class="form-control" placeholder="Enter 4-6 digit PIN">
+                </div>
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-success">Add Funds</button>
+                    <a th:href="@{/dashboard}" class="btn btn-secondary">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </div>
+    <footer th:replace="~{fragments/layout :: footer}"></footer>
+    <div th:replace="~{fragments/layout :: scripts}"></div></body>
+
+</html>
+
