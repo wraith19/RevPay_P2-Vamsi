@@ -14,6 +14,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import com.rev.app.exception.ResourceNotFoundException;
+import com.rev.app.exception.ForbiddenOperationException;
 
 @Controller
 @RequestMapping("/invoices")
@@ -93,7 +94,12 @@ public class InvoiceController {
 
     @GetMapping("/{id}")
     public String viewInvoice(@PathVariable Long id, Authentication authentication, Model model) {
+        User user = userService.findByEmail(authentication.getName())
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
         Invoice invoice = invoiceService.getInvoiceById(id);
+        if (!invoice.getBusinessUser().getId().equals(user.getId())) {
+            throw new ForbiddenOperationException("Unauthorized access to invoice");
+        }
         model.addAttribute("invoice", invoice);
         return "invoices/view";
     }

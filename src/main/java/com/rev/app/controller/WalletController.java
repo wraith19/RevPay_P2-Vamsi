@@ -11,6 +11,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.math.BigDecimal;
 import com.rev.app.exception.ResourceNotFoundException;
+import com.rev.app.exception.ForbiddenOperationException;
 
 @Controller
 @RequestMapping("/wallet")
@@ -35,13 +36,26 @@ public class WalletController {
     @PostMapping("/add-funds")
     public String addFunds(@RequestParam BigDecimal amount,
             @RequestParam Long paymentMethodId,
+            @RequestParam(required = false) String pin,
             Authentication authentication,
             RedirectAttributes redirectAttributes) {
         try {
             User user = userService.findByEmail(authentication.getName())
                     .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
+            String pinSetupRedirect = ensurePinConfigured(user, redirectAttributes, "/wallet/add-funds");
+            if (pinSetupRedirect != null) {
+                return pinSetupRedirect;
+            }
+            if (pin == null || pin.isBlank() || !userService.verifyTransactionPin(user.getId(), pin)) {
+                redirectAttributes.addFlashAttribute("error", "Invalid transaction PIN.");
+                return "redirect:/wallet/add-funds";
+            }
+
             PaymentMethod pm = paymentMethodService.getById(paymentMethodId);
+            if (!pm.getUser().getId().equals(user.getId())) {
+                throw new ForbiddenOperationException("Unauthorized access to payment method");
+            }
             transactionService.addFunds(user, amount, pm.getMaskedCardNumber());
 
             redirectAttributes.addFlashAttribute("success", "Funds added successfully!");
@@ -63,11 +77,21 @@ public class WalletController {
 
     @PostMapping("/withdraw")
     public String withdraw(@RequestParam BigDecimal amount,
+            @RequestParam(required = false) String pin,
             Authentication authentication,
             RedirectAttributes redirectAttributes) {
         try {
             User user = userService.findByEmail(authentication.getName())
                     .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+
+            String pinSetupRedirect = ensurePinConfigured(user, redirectAttributes, "/wallet/withdraw");
+            if (pinSetupRedirect != null) {
+                return pinSetupRedirect;
+            }
+            if (pin == null || pin.isBlank() || !userService.verifyTransactionPin(user.getId(), pin)) {
+                redirectAttributes.addFlashAttribute("error", "Invalid transaction PIN.");
+                return "redirect:/wallet/withdraw";
+            }
 
             transactionService.withdrawFunds(user, amount);
 
@@ -77,6 +101,14 @@ public class WalletController {
             redirectAttributes.addFlashAttribute("error", e.getMessage());
             return "redirect:/wallet/withdraw";
         }
+    }
+
+    private String ensurePinConfigured(User user, RedirectAttributes redirectAttributes, String returnTo) {
+        if (user.getTransactionPin() == null || user.getTransactionPin().isBlank()) {
+            redirectAttributes.addFlashAttribute("error", "Set your transaction PIN before making transactions.");
+            return "redirect:/profile/set-pin?returnTo=" + returnTo;
+        }
+        return null;
     }
 }
 

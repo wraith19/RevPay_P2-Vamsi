@@ -19,7 +19,8 @@ public interface ITransactionService {
     List<Transaction> getTransactionHistory(User user);
 
     List<Transaction> filterTransactions(User user, TransactionType type, TransactionStatus status,
-                                         LocalDateTime startDate, LocalDateTime endDate);
+                                         LocalDateTime startDate, LocalDateTime endDate,
+                                         BigDecimal minAmount, BigDecimal maxAmount);
 
     List<Transaction> searchTransactions(User user, String searchTerm);
 

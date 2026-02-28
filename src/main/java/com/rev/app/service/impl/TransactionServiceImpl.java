@@ -133,8 +133,9 @@ public class TransactionServiceImpl implements ITransactionService {
     @Override
     public List<Transaction> filterTransactions(User user, TransactionType type,
                                                 TransactionStatus status,
-                                                LocalDateTime startDate, LocalDateTime endDate) {
-        return transactionRepository.findByFilters(user, type, status, startDate, endDate);
+                                                LocalDateTime startDate, LocalDateTime endDate,
+                                                BigDecimal minAmount, BigDecimal maxAmount) {
+        return transactionRepository.findByFilters(user, type, status, startDate, endDate, minAmount, maxAmount);
     }
 
     @Override
