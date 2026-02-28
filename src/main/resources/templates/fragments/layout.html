@@ -1,0 +1,78 @@
+﻿<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:fragment="head(title)">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${title} + ' | RevPay'">RevPay</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.5/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-SgOJa3DmI69IUzQ2PVdRZhwQ+dy64/BUtbMJw1MZ8t5HZApcHrRKUc4W0kG879m7" crossorigin="anonymous">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+
+<nav th:fragment="navbar" class="navbar navbar-expand-lg app-navbar shadow-sm">
+    <div class="container-fluid nav-container">
+        <a href="/dashboard" class="navbar-brand nav-brand fw-semibold">
+            <i class="bi bi-wallet2 me-2"></i>RevPay
+        </a>
+        <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav"
+                aria-controls="mainNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="mainNav" sec:authorize="isAuthenticated()">
+            <div class="navbar-nav nav-links me-auto mb-2 mb-lg-0">
+                <a th:href="@{/dashboard}" class="nav-link">Dashboard</a>
+                <a th:href="@{/transactions/history}" class="nav-link">Transactions</a>
+                <a th:href="@{/requests/incoming}" class="nav-link">Requests</a>
+                <a th:href="@{/payment-methods}" class="nav-link">Cards</a>
+                <a th:href="@{/notifications}" class="nav-link">Notifications</a>
+                <a sec:authorize="hasRole('ADMIN')" th:href="@{/admin}" class="nav-link">Admin</a>
+                <span class="business-nav d-flex">
+                    <a sec:authorize="hasRole('BUSINESS')" th:href="@{/invoices}" class="nav-link">Invoices</a>
+                    <a sec:authorize="hasAnyRole('BUSINESS','ADMIN')" th:href="@{/loans}" class="nav-link">Loans</a>
+                    <a sec:authorize="hasRole('BUSINESS')" th:href="@{/analytics}" class="nav-link">Analytics</a>
+                </span>
+            </div>
+            <div class="nav-right d-flex align-items-lg-center gap-2">
+                <a th:href="@{/profile}" class="nav-link nav-profile">Profile</a>
+                <form th:action="@{/logout}" method="post" class="logout-form m-0">
+                    <button type="submit" class="btn btn-outline-light btn-sm">Logout</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</nav>
+
+<div th:fragment="alerts" class="alerts-container container mt-3">
+    <div th:if="${success}" class="alert alert-success alert-dismissible fade show" role="alert">
+        <span th:text="${success}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    <div th:if="${error}" class="alert alert-danger alert-dismissible fade show" role="alert">
+        <span th:text="${error}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    <div th:if="${message}" class="alert alert-info alert-dismissible fade show" role="alert">
+        <span th:text="${message}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+</div>
+
+<footer th:fragment="footer" class="footer">
+    <div class="footer-content container">
+        <p>&copy; 2026 RevPay. All rights reserved. Secure Digital Payments.</p>
+    </div>
+</footer>
+
+<th:block th:fragment="scripts">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.5/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-k6d4wzSIapyDyv1kpU366/PK5hCdSbCRGRCMv+eplOQJWyd1fbcAu9OCUj5zNLiq"
+            crossorigin="anonymous"></script>
+</th:block>
+
+</body>
+</html>
+

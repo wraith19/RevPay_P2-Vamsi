@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="~{fragments/layout :: head('Register')}"></head>
+
+<body class="auth-body">
+<div class="auth-container">
+    <div class="auth-card auth-card-wide">
+        <div class="auth-header">
+            <h1 class="brand-title"><i class="bi bi-wallet2"></i> RevPay</h1>
+            <p class="auth-subtitle">Create Your Account</p>
+        </div>
+
+        <div th:replace="~{fragments/layout :: alerts}"></div>
+
+        <form th:action="@{/register}" method="post" class="auth-form" id="registerForm" novalidate>
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="fullName">Full Name *</label>
+                    <input type="text" id="fullName" name="fullName" required class="form-control" placeholder="John Doe">
+                </div>
+                <div class="form-group">
+                    <label for="email">Email *</label>
+                    <input type="email" id="email" name="email" required class="form-control" placeholder="john@example.com">
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="phone">Phone Number *</label>
+                    <input type="tel" id="phone" name="phone" required class="form-control" placeholder="+1234567890">
+                </div>
+                <div class="form-group">
+                    <label for="role">Account Type *</label>
+                    <select id="role" name="role" required class="form-control" onchange="toggleBusinessFields()">
+                        <option value="PERSONAL">Personal</option>
+                        <option value="BUSINESS">Business</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="password">Password *</label>
+                    <input type="password" id="password" name="password" required minlength="6" class="form-control" placeholder="Min 6 characters">
+                </div>
+                <div class="form-group">
+                    <label for="confirmPassword">Confirm Password *</label>
+                    <input type="password" id="confirmPassword" name="confirmPassword" required class="form-control" placeholder="Confirm password">
+                </div>
+            </div>
+
+            <div id="businessFields" style="display:none;">
+                <h3 class="section-title">Business Information</h3>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="businessName">Business Name</label>
+                        <input type="text" id="businessName" name="businessName" class="form-control" placeholder="My Company">
+                    </div>
+                    <div class="form-group">
+                        <label for="businessType">Business Type</label>
+                        <select id="businessType" name="businessType" class="form-control">
+                            <option value="">Select type</option>
+                            <option value="Sole Proprietorship">Sole Proprietorship</option>
+                            <option value="Partnership">Partnership</option>
+                            <option value="LLC">LLC</option>
+                            <option value="Corporation">Corporation</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="taxId">Tax ID / EIN</label>
+                        <input type="text" id="taxId" name="taxId" class="form-control" placeholder="XX-XXXXXXX">
+                    </div>
+                    <div class="form-group">
+                        <label for="businessContactInfo">Contact Info</label>
+                        <input type="text" id="businessContactInfo" name="businessContactInfo" class="form-control" placeholder="Business phone/email">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="businessAddress">Business Address</label>
+                    <textarea id="businessAddress" name="businessAddress" class="form-control" rows="2" placeholder="Full business address"></textarea>
+                </div>
+            </div>
+
+            <h3 class="section-title">Security Questions</h3>
+            <div class="form-group">
+                <label for="securityQuestion1">Security Question 1</label>
+                <select id="securityQuestion1" name="securityQuestion1" class="form-control">
+                    <option value="">Select a question</option>
+                    <option value="What is your mother's maiden name?">What is your mother's maiden name?</option>
+                    <option value="What was the name of your first pet?">What was the name of your first pet?</option>
+                    <option value="What city were you born in?">What city were you born in?</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="securityAnswer1">Answer</label>
+                <input type="text" id="securityAnswer1" name="securityAnswer1" class="form-control" placeholder="Your answer">
+            </div>
+            <div class="form-group">
+                <label for="securityQuestion2">Security Question 2</label>
+                <select id="securityQuestion2" name="securityQuestion2" class="form-control">
+                    <option value="">Select a question</option>
+                    <option value="What is your favorite book?">What is your favorite book?</option>
+                    <option value="What was your childhood nickname?">What was your childhood nickname?</option>
+                    <option value="What is the name of the street you grew up on?">What is the name of the street you grew up on?</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="securityAnswer2">Answer</label>
+                <input type="text" id="securityAnswer2" name="securityAnswer2" class="form-control" placeholder="Your answer">
+            </div>
+
+            <button type="submit" class="btn btn-primary btn-full"><i class="bi bi-person-plus me-1"></i>Create Account</button>
+        </form>
+
+        <div class="auth-footer">
+            <p>Already have an account? <a th:href="@{/login}" class="link">Login here</a></p>
+        </div>
+    </div>
+</div>
+
+<script>
+    function toggleBusinessFields() {
+        var role = document.getElementById('role').value;
+        document.getElementById('businessFields').style.display = role === 'BUSINESS' ? 'block' : 'none';
+    }
+</script>
+<div th:replace="~{fragments/layout :: scripts}"></div>
+</body>
+
+</html>
