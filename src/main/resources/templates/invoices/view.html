@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="~{fragments/layout :: head('Invoice Details')}"></head>
+
+<body>
+    <nav th:replace="~{fragments/layout :: navbar}"></nav>
+    <div class="main-content">
+        <div th:replace="~{fragments/layout :: alerts}"></div>
+        <div class="page-header">
+            <h1>Invoice <span th:text="${invoice.invoiceNumber}">INV-001</span></h1>
+            <span class="badge" th:classappend="'badge-' + ${invoice.status.name().toLowerCase()}"
+                th:text="${invoice.status}">DRAFT</span>
+        </div>
+        <div class="card">
+            <div class="invoice-detail-grid">
+                <div><strong>Customer:</strong> <span th:text="${invoice.customerName}">-</span></div>
+                <div><strong>Email:</strong> <span th:text="${invoice.customerEmail ?: '-'}">-</span></div>
+                <div><strong>Address:</strong> <span th:text="${invoice.customerAddress ?: '-'}">-</span></div>
+                <div><strong>Due Date:</strong> <span
+                        th:text="${invoice.dueDate != null ? #temporals.format(invoice.dueDate, 'MMM dd, yyyy') : '-'}">-</span>
+                </div>
+                <div><strong>Payment Terms:</strong> <span th:text="${invoice.paymentTerms ?: '-'}">-</span></div>
+                <div><strong>Created:</strong> <span
+                        th:text="${#temporals.format(invoice.createdAt, 'MMM dd, yyyy')}">-</span></div>
+            </div>
+            <h3 style="margin-top:1.5rem">Line Items</h3>
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Description</th>
+                        <th>Qty</th>
+                        <th>Unit Price</th>
+                        <th>Tax Rate</th>
+                        <th>Line Total</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="item : ${invoice.items}">
+                        <td th:text="${item.description}">-</td>
+                        <td th:text="${item.quantity}">1</td>
+                        <td>$<span th:text="${#numbers.formatDecimal(item.unitPrice, 1, 2)}">0.00</span></td>
+                        <td th:text="${item.taxRate != null ? item.taxRate + '%' : '0%'}">0%</td>
+                        <td>$<span th:text="${#numbers.formatDecimal(item.lineTotal, 1, 2)}">0.00</span></td>
+                    </tr>
+                </tbody>
+                <tfoot>
+                    <tr>
+                        <td colspan="4" class="text-right"><strong>Subtotal:</strong></td>
+                        <td>$<span
+                                th:text="${invoice.subtotal != null ? #numbers.formatDecimal(invoice.subtotal, 1, 2) : '0.00'}">0.00</span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan="4" class="text-right"><strong>Tax:</strong></td>
+                        <td>$<span
+                                th:text="${invoice.taxAmount != null ? #numbers.formatDecimal(invoice.taxAmount, 1, 2) : '0.00'}">0.00</span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan="4" class="text-right"><strong>Total:</strong></td>
+                        <td class="amount"><strong>$<span
+                                    th:text="${invoice.totalAmount != null ? #numbers.formatDecimal(invoice.totalAmount, 1, 2) : '0.00'}">0.00</span></strong>
+                        </td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+        <div class="form-actions">
+            <a th:href="@{/invoices}" class="btn btn-secondary"><i class="bi bi-arrow-left"></i> Back to Invoices</a>
+        </div>
+    </div>
+    <footer th:replace="~{fragments/layout :: footer}"></footer>
+    <div th:replace="~{fragments/layout :: scripts}"></div>
+</body>
+
+</html>

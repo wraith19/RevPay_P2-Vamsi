@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="~{fragments/layout :: head('Invoices')}"></head>
+
+<body>
+    <nav th:replace="~{fragments/layout :: navbar}"></nav>
+    <div class="main-content">
+        <div th:replace="~{fragments/layout :: alerts}"></div>
+        <div class="page-header">
+            <h1>Invoices</h1>
+            <a th:href="@{/invoices/create}" class="btn btn-primary">+ Create Invoice</a>
+        </div>
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon"><i class="bi bi-check2-circle"></i></div>
+                <div class="stat-info">
+                    <h3>$<span th:text="${#numbers.formatDecimal(paidTotal, 1, 2)}">0.00</span></h3>
+                    <p>Paid Total</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon"><i class="bi bi-hourglass-split"></i></div>
+                <div class="stat-info">
+                    <h3>$<span th:text="${#numbers.formatDecimal(outstandingTotal, 1, 2)}">0.00</span></h3>
+                    <p>Outstanding</p>
+                </div>
+            </div>
+        </div>
+        <div class="card">
+            <div class="filter-inline">
+                <a th:href="@{/invoices}" class="btn btn-sm btn-secondary">All</a>
+                <a th:each="s : ${statuses}" th:href="@{/invoices(status=${s})}" class="btn btn-sm btn-secondary"
+                    th:text="${s}">STATUS</a>
+            </div>
+            <div th:if="${#lists.isEmpty(invoices)}" class="empty-state">
+                <p>No invoices found.</p>
+            </div>
+            <table th:unless="${#lists.isEmpty(invoices)}" class="data-table">
+                <thead>
+                    <tr>
+                        <th>Invoice #</th>
+                        <th>Customer</th>
+                        <th>Amount</th>
+                        <th>Due Date</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="inv : ${invoices}">
+                        <td><a th:href="@{'/invoices/' + ${inv.id}}" th:text="${inv.invoiceNumber}"
+                                class="link">INV-001</a></td>
+                        <td th:text="${inv.customerName}">Customer</td>
+                        <td class="amount">$<span
+                                th:text="${inv.totalAmount != null ? #numbers.formatDecimal(inv.totalAmount, 1, 2) : '0.00'}">0.00</span>
+                        </td>
+                        <td th:text="${inv.dueDate != null ? #temporals.format(inv.dueDate, 'MMM dd, yyyy') : '-'}">-
+                        </td>
+                        <td><span class="badge" th:classappend="'badge-' + ${inv.status.name().toLowerCase()}"
+                                th:text="${inv.status}">DRAFT</span></td>
+                        <td>
+                            <form th:if="${inv.status.name() == 'DRAFT'}"
+                                th:action="@{'/invoices/' + ${inv.id} + '/send'}" method="post" style="display:inline;">
+                                <button type="submit" class="btn btn-sm btn-primary">Send</button>
+                            </form>
+                            <form th:if="${inv.status.name() == 'SENT' || inv.status.name() == 'OVERDUE'}"
+                                th:action="@{'/invoices/' + ${inv.id} + '/mark-paid'}" method="post"
+                                style="display:inline;">
+                                <button type="submit" class="btn btn-sm btn-success">Mark Paid</button>
+                            </form>
+                            <form th:if="${inv.status.name() != 'PAID' && inv.status.name() != 'CANCELLED'}"
+                                th:action="@{'/invoices/' + ${inv.id} + '/cancel'}" method="post"
+                                style="display:inline;">
+                                <button type="submit" class="btn btn-sm btn-danger">Cancel</button>
+                            </form>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <footer th:replace="~{fragments/layout :: footer}"></footer>
+    <div th:replace="~{fragments/layout :: scripts}"></div>
+</body>
+
+</html>

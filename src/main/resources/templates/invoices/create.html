@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="~{fragments/layout :: head('Create Invoice')}"></head>
+
+<body>
+    <nav th:replace="~{fragments/layout :: navbar}"></nav>
+    <div class="main-content">
+        <div th:replace="~{fragments/layout :: alerts}"></div>
+        <div class="page-header">
+            <h1>Create Invoice</h1>
+        </div>
+        <div class="card form-card">
+            <form th:action="@{/invoices/create}" method="post" class="app-form" id="invoiceForm">
+                <h3 class="section-title">Customer Information</h3>
+                <div class="form-row">
+                    <div class="form-group"><label for="customerName">Customer Name *</label><input type="text"
+                            id="customerName" name="customerName" required class="form-control"></div>
+                    <div class="form-group"><label for="customerEmail">Customer Email</label><input type="email"
+                            id="customerEmail" name="customerEmail" class="form-control"></div>
+                </div>
+                <div class="form-group"><label for="customerAddress">Customer Address</label><textarea
+                        id="customerAddress" name="customerAddress" class="form-control" rows="2"></textarea></div>
+                <div class="form-row">
+                    <div class="form-group"><label for="dueDate">Due Date</label><input type="date" id="dueDate"
+                            name="dueDate" class="form-control"></div>
+                    <div class="form-group"><label for="paymentTerms">Payment Terms</label>
+                        <select id="paymentTerms" name="paymentTerms" class="form-control">
+                            <option value="Net 30">Net 30</option>
+                            <option value="Net 15">Net 15</option>
+                            <option value="Due on Receipt">Due on Receipt</option>
+                            <option value="Net 60">Net 60</option>
+                        </select>
+                    </div>
+                </div>
+
+                <h3 class="section-title">Line Items</h3>
+                <div id="lineItems">
+                    <div class="line-item form-row">
+                        <div class="form-group" style="flex:3"><label>Description *</label><input type="text"
+                                name="itemDescriptions" required class="form-control" placeholder="Service/Product">
+                        </div>
+                        <div class="form-group" style="flex:1"><label>Qty *</label><input type="number"
+                                name="itemQuantities" required min="1" value="1" class="form-control"></div>
+                        <div class="form-group" style="flex:1"><label>Price ($) *</label><input type="number"
+                                name="itemPrices" required min="0.01" step="0.01" class="form-control"
+                                placeholder="0.00"></div>
+                        <div class="form-group" style="flex:1"><label>Tax (%)</label><input type="number"
+                                name="itemTaxRates" min="0" step="0.01" value="0" class="form-control"></div>
+                    </div>
+                </div>
+                <button type="button" onclick="addLineItem()" class="btn btn-secondary btn-sm">+ Add Line Item</button>
+
+                <div class="form-actions" style="margin-top:2rem">
+                    <button type="submit" class="btn btn-primary">Create Invoice</button>
+                    <a th:href="@{/invoices}" class="btn btn-secondary">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </div>
+    <footer th:replace="~{fragments/layout :: footer}"></footer>
+    <script>
+        function addLineItem() {
+            var container = document.getElementById('lineItems');
+            var div = document.createElement('div');
+            div.className = 'line-item form-row';
+            div.innerHTML = '<div class="form-group" style="flex:3"><input type="text" name="itemDescriptions" required class="form-control" placeholder="Service/Product"></div>' +
+                '<div class="form-group" style="flex:1"><input type="number" name="itemQuantities" required min="1" value="1" class="form-control"></div>' +
+                '<div class="form-group" style="flex:1"><input type="number" name="itemPrices" required min="0.01" step="0.01" class="form-control" placeholder="0.00"></div>' +
+                '<div class="form-group" style="flex:1"><input type="number" name="itemTaxRates" min="0" step="0.01" value="0" class="form-control"></div>' +
+                '<button type="button" onclick="this.parentElement.remove()" class="btn btn-sm btn-danger" style="align-self:center">X</button>';
+            container.appendChild(div);
+        }
+    </script>
+    <div th:replace="~{fragments/layout :: scripts}"></div></body>
+
+</html>
+
