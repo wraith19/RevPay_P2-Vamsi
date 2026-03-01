@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+
+<head th:replace="~{fragments/layout :: head('Loan Details')}"></head>
+
+<body>
+    <nav th:replace="~{fragments/layout :: navbar}"></nav>
+    <div class="main-content">
+        <div th:replace="~{fragments/layout :: alerts}"></div>
+        <div class="page-header">
+            <h1>Loan Details</h1>
+            <span class="badge badge-lg" th:classappend="'badge-' + ${loan.status.name().toLowerCase()}"
+                th:text="${loan.status}">PENDING</span>
+        </div>
+        <div class="card">
+            <div class="detail-grid">
+                <div class="detail-item"><span class="detail-label">Loan Amount</span><span
+                        class="detail-value amount">$<span
+                            th:text="${#numbers.formatDecimal(loan.amount, 1, 2)}">0.00</span></span></div>
+                <div class="detail-item"><span class="detail-label">Interest Rate</span><span class="detail-value"
+                        th:text="${loan.interestRate + '% p.a.'}">12%</span></div>
+                <div class="detail-item"><span class="detail-label">Tenure</span><span class="detail-value"
+                        th:text="${loan.tenureMonths + ' months'}">12</span></div>
+                <div class="detail-item"><span class="detail-label">Monthly EMI</span><span class="detail-value">$<span
+                            th:text="${loan.emiAmount != null ? #numbers.formatDecimal(loan.emiAmount, 1, 2) : '-'}">0.00</span></span>
+                </div>
+                <div class="detail-item"><span class="detail-label">Total Repayable</span><span
+                        class="detail-value">$<span
+                            th:text="${loan.totalRepayable != null ? #numbers.formatDecimal(loan.totalRepayable, 1, 2) : '-'}">0.00</span></span>
+                </div>
+                <div class="detail-item"><span class="detail-label">Amount Repaid</span><span
+                        class="detail-value amount-in">$<span
+                            th:text="${#numbers.formatDecimal(loan.repaidAmount, 1, 2)}">0.00</span></span></div>
+                <div class="detail-item"><span class="detail-label">Purpose</span><span class="detail-value"
+                        th:text="${loan.purpose}">-</span></div>
+                <div class="detail-item"><span class="detail-label">Applied On</span><span class="detail-value"
+                        th:text="${#temporals.format(loan.appliedAt, 'MMM dd, yyyy')}">-</span></div>
+                <div th:if="${loan.approvedAt != null}" class="detail-item"><span class="detail-label">Approved
+                        On</span><span class="detail-value"
+                        th:text="${#temporals.format(loan.approvedAt, 'MMM dd, yyyy')}">-</span></div>
+                <div th:if="${loan.adminNote != null and !#strings.isEmpty(loan.adminNote)}" class="detail-item">
+                    <span class="detail-label">Admin Note</span>
+                    <span class="detail-value" th:text="${loan.adminNote}">-</span>
+                </div>
+            </div>
+        </div>
+
+        <div th:if="${loan.status.name() == 'PENDING' and isAdmin}" class="card form-card">
+            <h3>Admin Actions</h3>
+            <p class="form-hint">Approve or reject this pending loan application.</p>
+            <form th:action="@{'/loans/' + ${loan.id} + '/approve'}" method="post" class="app-form">
+                <div class="form-group">
+                    <label for="adminNote">Decision Note (optional)</label>
+                    <textarea id="adminNote" name="adminNote" rows="3" maxlength="500" class="form-control"
+                        placeholder="Add an optional note for this decision"></textarea>
+                </div>
+                <div class="d-flex gap-2">
+                    <button type="submit" class="btn btn-success">Approve Loan</button>
+                    <button type="submit" th:formaction="@{'/loans/' + ${loan.id} + '/reject'}"
+                        class="btn btn-danger">Reject Loan</button>
+                </div>
+            </form>
+        </div>
+
+        <div th:if="${(loan.status.name() == 'APPROVED' || loan.status.name() == 'ACTIVE') and !isAdmin}" class="card form-card">
+            <h3>Make Repayment</h3>
+            <form th:action="@{'/loans/' + ${loan.id} + '/repay'}" method="post" class="app-form inline-form">
+                <div class="form-group">
+                    <label for="amount">Repayment Amount ($)</label>
+                    <input type="number" id="amount" name="amount" required min="1" step="0.01" class="form-control"
+                        th:placeholder="'EMI: $' + ${loan.emiAmount != null ? #numbers.formatDecimal(loan.emiAmount, 1, 2) : '0.00'}">
+                </div>
+                <button type="submit" class="btn btn-primary">Pay Now</button>
+            </form>
+        </div>
+
+        <div class="form-actions"><a th:href="@{/loans}" class="btn btn-secondary"><- Back to Loans</a></div>
+    </div>
+    <footer th:replace="~{fragments/layout :: footer}"></footer>
+    <div th:replace="~{fragments/layout :: scripts}"></div>
+</body>
+
+</html>

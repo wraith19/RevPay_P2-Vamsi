@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="~{fragments/layout :: head('Apply for Loan')}"></head>
+
+<body>
+    <nav th:replace="~{fragments/layout :: navbar}"></nav>
+    <div class="main-content">
+        <div th:replace="~{fragments/layout :: alerts}"></div>
+        <div class="page-header">
+            <h1>Apply for Business Loan</h1>
+        </div>
+        <div class="card form-card">
+            <form th:action="@{/loans/apply}" method="post" class="app-form">
+                <div class="form-row">
+                    <div class="form-group"><label for="amount">Loan Amount ($) *</label><input type="number"
+                            id="amount" name="amount" required min="1000" step="100" class="form-control"
+                            placeholder="Min $1,000"></div>
+                    <div class="form-group"><label for="tenureMonths">Tenure (Months) *</label>
+                        <select id="tenureMonths" name="tenureMonths" required class="form-control">
+                            <option value="3">3 Months</option>
+                            <option value="6">6 Months</option>
+                            <option value="12" selected>12 Months</option>
+                            <option value="24">24 Months</option>
+                            <option value="36">36 Months</option>
+                            <option value="48">48 Months</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group"><label for="purpose">Loan Purpose *</label><textarea id="purpose" name="purpose"
+                        required class="form-control" rows="3"
+                        placeholder="Describe how you plan to use the loan"></textarea></div>
+                <div class="form-group"><label for="financialInfo">Financial Information</label><textarea
+                        id="financialInfo" name="financialInfo" class="form-control" rows="3"
+                        placeholder="Annual revenue, profit, etc."></textarea></div>
+                <div class="form-group"><label for="supportingDocuments">Supporting Documents</label><input type="text"
+                        id="supportingDocuments" name="supportingDocuments" class="form-control"
+                        placeholder="Document references (simulated)"></div>
+                <p class="form-hint">Interest Rate: 12% p.a. | EMI will be calculated upon submission.</p>
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">Submit Application</button>
+                    <a th:href="@{/loans}" class="btn btn-secondary">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </div>
+    <footer th:replace="~{fragments/layout :: footer}"></footer>
+    <div th:replace="~{fragments/layout :: scripts}"></div></body>
+
+</html>
+

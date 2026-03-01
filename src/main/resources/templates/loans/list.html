@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+
+<head th:replace="~{fragments/layout :: head('My Loans')}"></head>
+
+<body>
+    <nav th:replace="~{fragments/layout :: navbar}"></nav>
+    <div class="main-content">
+        <div th:replace="~{fragments/layout :: alerts}"></div>
+        <div class="page-header">
+            <h1 th:text="${isAdmin} ? 'Pending Loan Approvals' : 'My Loans'">My Loans</h1>
+            <a th:if="${!isAdmin}" th:href="@{/loans/apply}" class="btn btn-primary">+ Apply for Loan</a>
+        </div>
+        <div class="card">
+            <div th:if="${#lists.isEmpty(loans)}" class="empty-state">
+                <p>No loan applications yet.</p>
+            </div>
+            <table th:unless="${#lists.isEmpty(loans)}" class="data-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Amount</th>
+                        <th>Purpose</th>
+                        <th>Tenure</th>
+                        <th>EMI</th>
+                        <th>Status</th>
+                        <th>Applied</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="loan : ${loans}">
+                        <td th:text="${loan.id}">1</td>
+                        <td class="amount">$<span th:text="${#numbers.formatDecimal(loan.amount, 1, 2)}">0.00</span>
+                        </td>
+                        <td th:text="${loan.purpose}">Purpose</td>
+                        <td th:text="${loan.tenureMonths + ' months'}">12</td>
+                        <td>$<span
+                                th:text="${loan.emiAmount != null ? #numbers.formatDecimal(loan.emiAmount, 1, 2) : '-'}">0.00</span>
+                        </td>
+                        <td><span class="badge" th:classappend="'badge-' + ${loan.status.name().toLowerCase()}"
+                                th:text="${loan.status}">PENDING</span></td>
+                        <td th:text="${#temporals.format(loan.appliedAt, 'MMM dd, yyyy')}">Jan 01</td>
+                        <td><a th:href="@{'/loans/' + ${loan.id}}" class="btn btn-sm btn-secondary">View</a></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <footer th:replace="~{fragments/layout :: footer}"></footer>
+    <div th:replace="~{fragments/layout :: scripts}"></div></body>
+
+</html>
+
