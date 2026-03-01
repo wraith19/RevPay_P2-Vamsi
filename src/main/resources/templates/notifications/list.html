@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="~{fragments/layout :: head('Notifications')}"></head>
+
+<body>
+    <nav th:replace="~{fragments/layout :: navbar}"></nav>
+    <div class="main-content">
+        <div th:replace="~{fragments/layout :: alerts}"></div>
+        <div class="page-header">
+            <h1>Notifications <span th:if="${unreadCount > 0}" class="badge badge-danger"
+                    th:text="${unreadCount}">0</span></h1>
+            <div class="page-actions">
+                <form th:action="@{/notifications/mark-all-read}" method="post" style="display:inline;">
+                    <button type="submit" class="btn btn-secondary">Mark All Read</button>
+                </form>
+                <a th:href="@{/notifications/preferences}" class="btn btn-secondary"><i class="bi bi-gear"></i> Preferences</a>
+            </div>
+        </div>
+        <div class="card">
+            <div th:if="${#lists.isEmpty(notifications)}" class="empty-state">
+                <p>No notifications.</p>
+            </div>
+            <div class="notification-list" th:unless="${#lists.isEmpty(notifications)}">
+                <div th:each="n : ${notifications}" class="notification-item"
+                    th:classappend="${!n.isRead} ? 'notification-unread' : ''">
+                    <div class="notification-icon">
+                        <i class="bi"
+                           th:classappend="${n.type.name() == 'TRANSACTION'} ? 'bi-cash-stack' :
+                                           (${n.type.name() == 'MONEY_REQUEST'} ? 'bi-envelope-paper' :
+                                           (${n.type.name() == 'LOW_BALANCE'} ? 'bi-exclamation-triangle' :
+                                           (${n.type.name() == 'INVOICE'} ? 'bi-receipt' :
+                                           (${n.type.name() == 'LOAN'} ? 'bi-bank' : 'bi-bell'))))"></i>
+                    </div>
+                    <div class="notification-content">
+                        <p th:text="${n.message}">Notification message</p>
+                        <span class="notification-time"
+                            th:text="${#temporals.format(n.timestamp, 'MMM dd, yyyy HH:mm')}">Jan 01</span>
+                    </div>
+                    <form th:if="${!n.isRead}" th:action="@{'/notifications/' + ${n.id} + '/read'}" method="post">
+                        <button type="submit" class="btn btn-sm btn-secondary"><i class="bi bi-check-lg"></i></button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <footer th:replace="~{fragments/layout :: footer}"></footer>
+    <div th:replace="~{fragments/layout :: scripts}"></div>
+</body>
+
+</html>

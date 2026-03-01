@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="~{fragments/layout :: head('Notification Preferences')}"></head>
+
+<body>
+    <nav th:replace="~{fragments/layout :: navbar}"></nav>
+    <div class="main-content">
+        <div th:replace="~{fragments/layout :: alerts}"></div>
+        <div class="page-header">
+            <h1>Notification Preferences</h1>
+        </div>
+        <div class="card form-card">
+            <form th:action="@{/notifications/preferences}" method="post" class="app-form">
+                <div class="toggle-group">
+                    <label class="toggle-label"><input type="checkbox" name="notifyTransactions" value="true"
+                            th:checked="${user.notifyTransactions}"> Transaction Notifications</label>
+                    <label class="toggle-label"><input type="checkbox" name="notifyRequests" value="true"
+                            th:checked="${user.notifyRequests}"> Money Request Notifications</label>
+                    <label class="toggle-label"><input type="checkbox" name="notifyCardChanges" value="true"
+                            th:checked="${user.notifyCardChanges}"> Card Change Notifications</label>
+                    <label class="toggle-label"><input type="checkbox" name="notifyLowBalance" value="true"
+                            th:checked="${user.notifyLowBalance}"> Low Balance Alerts</label>
+                    <label class="toggle-label"><input type="checkbox" name="notifyInvoices" value="true"
+                            th:checked="${user.notifyInvoices}"> Invoice Notifications</label>
+                    <label class="toggle-label"><input type="checkbox" name="notifyLoans" value="true"
+                            th:checked="${user.notifyLoans}"> Loan Notifications</label>
+                </div>
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">Save Preferences</button>
+                    <a th:href="@{/notifications}" class="btn btn-secondary">Back</a>
+                </div>
+            </form>
+        </div>
+    </div>
+    <footer th:replace="~{fragments/layout :: footer}"></footer>
+    <div th:replace="~{fragments/layout :: scripts}"></div></body>
+
+</html>
+
