@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="~{fragments/layout :: head('Business Analytics')}"></head>
+
+<body>
+    <nav th:replace="~{fragments/layout :: navbar}"></nav>
+    <div class="main-content">
+        <div class="page-header">
+            <h1>Business Analytics Dashboard</h1>
+        </div>
+
+        <div class="stats-grid stats-grid-4">
+            <div class="stat-card stat-primary">
+                <div class="stat-icon"><i class="bi bi-wallet2"></i></div>
+                <div class="stat-info">
+                    <h3>$<span th:text="${#numbers.formatDecimal(balance, 1, 2)}">0.00</span></h3>
+                    <p>Wallet Balance</p>
+                </div>
+            </div>
+            <div class="stat-card stat-success">
+                <div class="stat-icon"><i class="bi bi-arrow-down-circle"></i></div>
+                <div class="stat-info">
+                    <h3>$<span
+                            th:text="${transactionSummary.get('totalReceived') != null ? #numbers.formatDecimal(transactionSummary.get('totalReceived'), 1, 2) : '0.00'}">0.00</span>
+                    </h3>
+                    <p>Total Received</p>
+                </div>
+            </div>
+            <div class="stat-card stat-warning">
+                <div class="stat-icon"><i class="bi bi-arrow-up-circle"></i></div>
+                <div class="stat-info">
+                    <h3>$<span
+                            th:text="${transactionSummary.get('totalSent') != null ? #numbers.formatDecimal(transactionSummary.get('totalSent'), 1, 2) : '0.00'}">0.00</span>
+                    </h3>
+                    <p>Total Sent</p>
+                </div>
+            </div>
+            <div class="stat-card stat-info">
+                <div class="stat-icon"><i class="bi bi-hourglass-split"></i></div>
+                <div class="stat-info">
+                    <h3>$<span
+                            th:text="${outstandingInvoices != null ? #numbers.formatDecimal(outstandingInvoices, 1, 2) : '0.00'}">0.00</span>
+                    </h3>
+                    <p>Outstanding Invoices</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="analytics-row">
+            <div class="card analytics-card">
+                <h3>Invoice Summary</h3>
+                <div class="analytics-stats">
+                    <div th:each="entry : ${invoiceStatusSummary}" class="analytics-stat-item">
+                        <span class="analytics-label" th:text="${entry.key}">DRAFT</span>
+                        <span class="analytics-value" th:text="${entry.value}">0</span>
+                    </div>
+                </div>
+            </div>
+            <div class="card analytics-card">
+                <h3>Quick Stats</h3>
+                <div class="analytics-stats">
+                    <div class="analytics-stat-item"><span class="analytics-label">Paid Invoices</span><span
+                            class="analytics-value" th:text="${paidInvoiceCount}">0</span></div>
+                    <div class="analytics-stat-item"><span class="analytics-label">Overdue Invoices</span><span
+                            class="analytics-value analytics-danger" th:text="${overdueInvoiceCount}">0</span></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h3>Top Customers by Transaction Volume</h3>
+            <div th:if="${#lists.isEmpty(topCustomers)}" class="empty-state">
+                <p>No customer data yet.</p>
+            </div>
+            <table th:unless="${#lists.isEmpty(topCustomers)}" class="data-table">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Customer Name</th>
+                        <th>Total Amount</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="customer, iter : ${topCustomers}">
+                        <td th:text="${iter.index + 1}">1</td>
+                        <td th:text="${customer.get('name')}">Customer</td>
+                        <td class="amount amount-in">$<span
+                                th:text="${#numbers.formatDecimal(customer.get('totalAmount'), 1, 2)}">0.00</span></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <footer th:replace="~{fragments/layout :: footer}"></footer>
+    <div th:replace="~{fragments/layout :: scripts}"></div>
+</body>
+
+</html>
