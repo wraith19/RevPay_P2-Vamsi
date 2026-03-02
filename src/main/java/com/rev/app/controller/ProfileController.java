@@ -76,19 +76,27 @@ public class ProfileController {
     }
 
     @GetMapping("/set-pin")
-    public String setPinForm() {
+    public String setPinForm(@RequestParam(required = false) String returnTo, Model model) {
+        if (isSafeReturnTo(returnTo)) {
+            model.addAttribute("returnTo", returnTo);
+        }
         return "profile/set-pin";
     }
 
     @PostMapping("/set-pin")
     public String setPin(@RequestParam String pin,
             @RequestParam String confirmPin,
+            @RequestParam(required = false) String returnTo,
             Authentication authentication,
             RedirectAttributes redirectAttributes) {
         try {
             if (!pin.equals(confirmPin)) {
                 redirectAttributes.addFlashAttribute("error", "PINs do not match!");
-                return "redirect:/profile/set-pin";
+                return redirectToSetPin(returnTo);
+            }
+            if (!pin.matches("\\d{4,6}")) {
+                redirectAttributes.addFlashAttribute("error", "PIN must be 4 to 6 digits.");
+                return redirectToSetPin(returnTo);
             }
 
             User user = userService.findByEmail(authentication.getName())
@@ -98,8 +106,27 @@ public class ProfileController {
             redirectAttributes.addFlashAttribute("success", "Transaction PIN set successfully!");
         } catch (RuntimeException e) {
             redirectAttributes.addFlashAttribute("error", e.getMessage());
+            return redirectToSetPin(returnTo);
+        }
+        return resolvePostPinRedirect(returnTo);
+    }
+
+    private String resolvePostPinRedirect(String returnTo) {
+        if (isSafeReturnTo(returnTo)) {
+            return "redirect:" + returnTo;
         }
         return "redirect:/profile/set-pin";
+    }
+
+    private String redirectToSetPin(String returnTo) {
+        if (isSafeReturnTo(returnTo)) {
+            return "redirect:/profile/set-pin?returnTo=" + returnTo;
+        }
+        return "redirect:/profile/set-pin";
+    }
+
+    private boolean isSafeReturnTo(String returnTo) {
+        return returnTo != null && !returnTo.isBlank() && returnTo.startsWith("/") && !returnTo.startsWith("//");
     }
 }
 
