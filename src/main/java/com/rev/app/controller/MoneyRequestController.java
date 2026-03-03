@@ -1,7 +1,11 @@
 package com.rev.app.controller;
 
 import com.rev.app.entity.*;
-import com.rev.app.service.*;
+import com.rev.app.exception.ResourceNotFoundException;
+import com.rev.app.service.IInvoiceService;
+import com.rev.app.service.IMoneyRequestService;
+import com.rev.app.service.IPaymentMethodService;
+import com.rev.app.service.IUserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
@@ -10,8 +14,8 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.math.BigDecimal;
+import java.util.Collections;
 import java.util.List;
-import com.rev.app.exception.ResourceNotFoundException;
 
 @Controller
 @RequestMapping("/requests")
@@ -20,18 +24,23 @@ public class MoneyRequestController {
 
     private final IUserService userService;
     private final IMoneyRequestService moneyRequestService;
+    private final IInvoiceService invoiceService;
+    private final IPaymentMethodService paymentMethodService;
 
     @GetMapping("/create")
-    public String createForm() {
+    public String createForm(Authentication authentication, Model model) {
+        User user = userService.findByEmail(authentication.getName())
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+        model.addAttribute("isBusiness", user.getRole() == Role.BUSINESS);
         return "requests/create";
     }
 
     @PostMapping("/create")
     public String createRequest(@RequestParam String requesteeIdentifier,
-            @RequestParam BigDecimal amount,
-            @RequestParam(required = false) String purpose,
-            Authentication authentication,
-            RedirectAttributes redirectAttributes) {
+                                @RequestParam BigDecimal amount,
+                                @RequestParam(required = false) String purpose,
+                                Authentication authentication,
+                                RedirectAttributes redirectAttributes) {
         try {
             User requester = userService.findByEmail(authentication.getName())
                     .orElseThrow(() -> new ResourceNotFoundException("User not found"));
@@ -53,7 +62,11 @@ public class MoneyRequestController {
                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
         List<MoneyRequest> requests = moneyRequestService.getIncomingRequests(user);
+        List<Invoice> receivedInvoices = invoiceService.getReceivedInvoices(user);
+
         model.addAttribute("requests", requests);
+        model.addAttribute("receivedInvoices", receivedInvoices);
+        model.addAttribute("paymentMethods", paymentMethodService.getUserPaymentMethods(user));
         model.addAttribute("user", user);
         return "requests/incoming";
     }
@@ -64,14 +77,19 @@ public class MoneyRequestController {
                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
         List<MoneyRequest> requests = moneyRequestService.getOutgoingRequests(user);
+        List<Invoice> sentInvoices = user.getRole() == Role.BUSINESS
+                ? invoiceService.getBusinessInvoices(user)
+                : Collections.emptyList();
+
         model.addAttribute("requests", requests);
+        model.addAttribute("sentInvoices", sentInvoices);
         model.addAttribute("user", user);
         return "requests/outgoing";
     }
 
     @PostMapping("/{id}/accept")
     public String acceptRequest(@PathVariable Long id, Authentication authentication,
-            RedirectAttributes redirectAttributes) {
+                                RedirectAttributes redirectAttributes) {
         try {
             User user = userService.findByEmail(authentication.getName())
                     .orElseThrow(() -> new ResourceNotFoundException("User not found"));
@@ -85,7 +103,7 @@ public class MoneyRequestController {
 
     @PostMapping("/{id}/decline")
     public String declineRequest(@PathVariable Long id, Authentication authentication,
-            RedirectAttributes redirectAttributes) {
+                                 RedirectAttributes redirectAttributes) {
         try {
             User user = userService.findByEmail(authentication.getName())
                     .orElseThrow(() -> new ResourceNotFoundException("User not found"));
@@ -99,7 +117,7 @@ public class MoneyRequestController {
 
     @PostMapping("/{id}/cancel")
     public String cancelRequest(@PathVariable Long id, Authentication authentication,
-            RedirectAttributes redirectAttributes) {
+                                RedirectAttributes redirectAttributes) {
         try {
             User user = userService.findByEmail(authentication.getName())
                     .orElseThrow(() -> new ResourceNotFoundException("User not found"));
@@ -111,4 +129,3 @@ public class MoneyRequestController {
         return "redirect:/requests/outgoing";
     }
 }
-

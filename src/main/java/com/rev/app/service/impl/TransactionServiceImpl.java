@@ -16,6 +16,7 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
+import com.rev.app.exception.ForbiddenOperationException;
 import com.rev.app.exception.ResourceNotFoundException;
 import com.rev.app.exception.ValidationException;
 
@@ -24,6 +25,7 @@ import com.rev.app.exception.ValidationException;
 public class TransactionServiceImpl implements ITransactionService {
 
     private static final Logger logger = LogManager.getLogger(TransactionServiceImpl.class);
+    private static final String DEFAULT_TRANSFER_NOTE = "Money transfer";
 
     private final ITransactionRepository transactionRepository;
     private final IUserRepository userRepository;
@@ -34,6 +36,7 @@ public class TransactionServiceImpl implements ITransactionService {
     @Transactional
     public Transaction sendMoney(User sender, String recipientIdentifier, BigDecimal amount, String note) {
         logger.info("Sending {} from {} to {}", amount, sender.getEmail(), recipientIdentifier);
+        ensureBusinessUserVerified(sender);
 
         if (amount.compareTo(BigDecimal.ZERO) <= 0) {
             throw new ValidationException("Amount must be positive");
@@ -52,13 +55,15 @@ public class TransactionServiceImpl implements ITransactionService {
         walletService.debit(sender, amount);
         walletService.credit(receiver, amount);
 
+        String transactionNote = (note == null || note.isBlank()) ? DEFAULT_TRANSFER_NOTE : note.trim();
+
         Transaction sendTxn = Transaction.builder()
                 .sender(sender)
                 .receiver(receiver)
                 .amount(amount)
                 .type(TransactionType.SEND)
                 .status(TransactionStatus.SUCCESS)
-                .note(note)
+                .note(transactionNote)
                 .build();
         sendTxn = transactionRepository.save(sendTxn);
 
@@ -83,6 +88,7 @@ public class TransactionServiceImpl implements ITransactionService {
     @Transactional
     public Transaction addFunds(User user, BigDecimal amount, String paymentMethodInfo) {
         logger.info("Adding funds {} to wallet of {}", amount, user.getEmail());
+        ensureBusinessUserVerified(user);
 
         walletService.addFunds(user, amount);
 
@@ -106,6 +112,7 @@ public class TransactionServiceImpl implements ITransactionService {
     @Transactional
     public Transaction withdrawFunds(User user, BigDecimal amount) {
         logger.info("Withdrawing {} from wallet of {}", amount, user.getEmail());
+        ensureBusinessUserVerified(user);
 
         walletService.withdrawFunds(user, amount);
 
@@ -178,5 +185,11 @@ public class TransactionServiceImpl implements ITransactionService {
                     }
                 })
                 .orElseThrow(() -> new ResourceNotFoundException("Recipient not found: " + identifier));
+    }
+
+    private void ensureBusinessUserVerified(User user) {
+        if (user != null && user.getRole() == Role.BUSINESS && (user.getBusinessVerified() == null || !user.getBusinessVerified())) {
+            throw new ForbiddenOperationException("Business account is pending verification by admin");
+        }
     }
 }

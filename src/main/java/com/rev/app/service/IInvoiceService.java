@@ -11,8 +11,8 @@ import java.util.List;
 
 public interface IInvoiceService {
     Invoice createInvoice(User businessUser, String customerName, String customerEmail,
-                          String customerAddress, LocalDate dueDate, String paymentTerms,
-                          List<InvoiceItem> items);
+            String customerAddress, LocalDate dueDate, String paymentTerms,
+            List<InvoiceItem> items);
 
     Invoice sendInvoice(Long invoiceId, User businessUser);
 
@@ -29,4 +29,13 @@ public interface IInvoiceService {
     BigDecimal getPaidTotal(User businessUser);
 
     BigDecimal getOutstandingTotal(User businessUser);
+
+    /**
+     * Recipient pays an invoice. Payment source can be WALLET or CARD.
+     * If CARD is used, paymentMethodId must belong to payingUser.
+     */
+    Invoice payInvoice(Long invoiceId, User payingUser, String paymentSource, Long paymentMethodId);
+
+    /** Returns SENT invoices where customerEmail == user.email */
+    List<Invoice> getReceivedInvoices(User user);
 }

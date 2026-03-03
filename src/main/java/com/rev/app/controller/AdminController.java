@@ -96,11 +96,68 @@ public class AdminController {
         return "redirect:/admin/users";
     }
 
-    private void ensureAdmin(Authentication authentication) {
+    @GetMapping("/users/{userId}/edit")
+    public String editUserForm(@PathVariable Long userId, Authentication authentication, Model model) {
+        ensureAdmin(authentication);
+        User user = userService.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+        model.addAttribute("editUser", user);
+        model.addAttribute("roles", Role.values());
+        return "admin/user-edit";
+    }
+
+    @PostMapping("/users/{userId}/edit")
+    public String updateUser(@PathVariable Long userId,
+            @RequestParam String fullName,
+            @RequestParam String email,
+            @RequestParam String phone,
+            @RequestParam Role role,
+            @RequestParam(defaultValue = "false") boolean enabled,
+            @RequestParam(required = false) String businessName,
+            @RequestParam(required = false) String businessType,
+            @RequestParam(required = false) String taxId,
+            @RequestParam(required = false) String businessAddress,
+            @RequestParam(required = false) String businessContactInfo,
+            @RequestParam(required = false, defaultValue = "false") boolean businessVerified,
+            Authentication authentication,
+            RedirectAttributes redirectAttributes) {
+        try {
+            User admin = ensureAdmin(authentication);
+            User target = userService.findById(userId)
+                    .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+
+            if (admin.getId().equals(target.getId()) && (!enabled || role != Role.ADMIN)) {
+                throw new ForbiddenOperationException("You cannot deactivate yourself or remove your admin role");
+            }
+
+            userService.updateUserAsAdmin(
+                    userId,
+                    fullName,
+                    email,
+                    phone,
+                    role,
+                    enabled,
+                    businessName,
+                    businessType,
+                    taxId,
+                    businessAddress,
+                    businessContactInfo,
+                    businessVerified);
+
+            redirectAttributes.addFlashAttribute("success", "User account updated successfully.");
+            return "redirect:/admin/users";
+        } catch (RuntimeException e) {
+            redirectAttributes.addFlashAttribute("error", e.getMessage());
+            return "redirect:/admin/users/" + userId + "/edit";
+        }
+    }
+
+    private User ensureAdmin(Authentication authentication) {
         User user = userService.findByEmail(authentication.getName())
                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));
         if (user.getRole() != Role.ADMIN) {
             throw new ForbiddenOperationException("Unauthorized access");
         }
+        return user;
     }
 }

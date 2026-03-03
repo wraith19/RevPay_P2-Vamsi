@@ -36,6 +36,7 @@ public class LoanServiceImpl implements ILoanService {
         if (businessUser.getRole() != Role.BUSINESS) {
             throw new ForbiddenOperationException("Only business users can apply for loans");
         }
+        ensureBusinessUserVerified(businessUser);
 
         Loan loan = Loan.builder()
                 .businessUser(businessUser)
@@ -112,6 +113,7 @@ public class LoanServiceImpl implements ILoanService {
     @Override
     @Transactional
     public Loan makeRepayment(Long loanId, User user, BigDecimal amount) {
+        ensureBusinessUserVerified(user);
         Loan loan = loanRepository.findById(loanId)
                 .orElseThrow(() -> new ResourceNotFoundException("Loan not found"));
 
@@ -150,6 +152,7 @@ public class LoanServiceImpl implements ILoanService {
 
     @Override
     public List<Loan> getUserLoans(User user) {
+        ensureBusinessUserVerified(user);
         return loanRepository.findByBusinessUserOrderByAppliedAtDesc(user);
     }
 
@@ -167,6 +170,12 @@ public class LoanServiceImpl implements ILoanService {
     private void ensureAdminUser(User user) {
         if (user == null || user.getRole() != Role.ADMIN) {
             throw new ForbiddenOperationException("Only admin users can make this loan decision");
+        }
+    }
+
+    private void ensureBusinessUserVerified(User user) {
+        if (user != null && user.getRole() == Role.BUSINESS && (user.getBusinessVerified() == null || !user.getBusinessVerified())) {
+            throw new ForbiddenOperationException("Business account is pending verification by admin");
         }
     }
 }

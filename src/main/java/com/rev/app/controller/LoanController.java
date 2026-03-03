@@ -6,13 +6,20 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.io.IOException;
 import java.math.BigDecimal;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 import java.util.List;
+import java.util.UUID;
 import com.rev.app.exception.ResourceNotFoundException;
 import com.rev.app.exception.ForbiddenOperationException;
+import com.rev.app.exception.ValidationException;
 
 @Controller
 @RequestMapping("/loans")
@@ -52,13 +59,15 @@ public class LoanController {
             @RequestParam Integer tenureMonths,
             @RequestParam(required = false) String financialInfo,
             @RequestParam(required = false) String supportingDocuments,
+            @RequestParam(required = false) MultipartFile supportingDocumentFile,
             Authentication authentication,
             RedirectAttributes redirectAttributes) {
         try {
             User user = userService.findByEmail(authentication.getName())
                     .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
-            loanService.applyForLoan(user, amount, purpose, tenureMonths, financialInfo, supportingDocuments);
+            String documentsReference = resolveSupportingDocumentsReference(supportingDocuments, supportingDocumentFile);
+            loanService.applyForLoan(user, amount, purpose, tenureMonths, financialInfo, documentsReference);
             redirectAttributes.addFlashAttribute("success", "Loan application submitted successfully!");
             return "redirect:/loans";
         } catch (RuntimeException e) {
@@ -128,6 +137,33 @@ public class LoanController {
             redirectAttributes.addFlashAttribute("error", e.getMessage());
         }
         return "redirect:/loans/" + id;
+    }
+
+    private String resolveSupportingDocumentsReference(String supportingDocuments, MultipartFile supportingDocumentFile) {
+        if (supportingDocumentFile != null && !supportingDocumentFile.isEmpty()) {
+            return storeSupportingDocument(supportingDocumentFile);
+        }
+        if (supportingDocuments == null || supportingDocuments.isBlank()) {
+            return null;
+        }
+        return supportingDocuments.trim();
+    }
+
+    private String storeSupportingDocument(MultipartFile file) {
+        try {
+            String originalName = file.getOriginalFilename() != null ? file.getOriginalFilename() : "document";
+            String safeName = originalName.replaceAll("[^a-zA-Z0-9._-]", "_");
+            String uniqueName = UUID.randomUUID() + "_" + safeName;
+
+            Path uploadDir = Path.of("uploads", "loans");
+            Files.createDirectories(uploadDir);
+            Path target = uploadDir.resolve(uniqueName);
+            Files.copy(file.getInputStream(), target, StandardCopyOption.REPLACE_EXISTING);
+
+            return "/uploads/loans/" + uniqueName;
+        } catch (IOException e) {
+            throw new ValidationException("Unable to upload supporting document");
+        }
     }
 }
 

@@ -1,7 +1,9 @@
 package com.rev.app.controller;
 
 import com.rev.app.entity.*;
+import com.rev.app.exception.ValidationException;
 import com.rev.app.service.IUserService;
+import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -18,6 +20,7 @@ import java.util.List;
 public class AuthController {
 
     private static final Logger logger = LogManager.getLogger(AuthController.class);
+    private static final String RESET_ALLOWED_IDENTIFIER = "RESET_ALLOWED_IDENTIFIER";
     private final IUserService userService;
 
     @GetMapping("/login")
@@ -37,6 +40,73 @@ public class AuthController {
     public String registerPage(Model model) {
         model.addAttribute("roles", Role.values());
         return "auth/register";
+    }
+
+    @GetMapping("/forgot-password")
+    public String forgotPasswordPage() {
+        return "auth/forgot-password-security";
+    }
+
+    @PostMapping("/forgot-password")
+    public String forgotPasswordLookup(@RequestParam String identifier, Model model, RedirectAttributes redirectAttributes) {
+        try {
+            List<SecurityQuestion> questions = userService.getSecurityQuestionsForUser(identifier);
+            if (questions.isEmpty()) {
+                throw new RuntimeException("No security questions are configured for this account");
+            }
+            model.addAttribute("identifier", identifier);
+            model.addAttribute("questions", questions);
+            return "auth/reset-password-security";
+        } catch (RuntimeException e) {
+            redirectAttributes.addFlashAttribute("error", e.getMessage());
+            return "redirect:/forgot-password";
+        }
+    }
+
+    @PostMapping("/forgot-password/verify")
+    public String forgotPasswordVerify(@RequestParam String identifier,
+            @RequestParam Long questionId,
+            @RequestParam String answer,
+            HttpSession session,
+            Model model,
+            RedirectAttributes redirectAttributes) {
+        try {
+            userService.validateSecurityQuestionAnswer(identifier, questionId, answer);
+            session.setAttribute(RESET_ALLOWED_IDENTIFIER, identifier);
+            model.addAttribute("identifier", identifier);
+            return "auth/reset-password-security-final";
+        } catch (RuntimeException e) {
+            model.addAttribute("identifier", identifier);
+            model.addAttribute("questions", userService.getSecurityQuestionsForUser(identifier));
+            model.addAttribute("error", e.getMessage());
+            return "auth/reset-password-security";
+        }
+    }
+
+    @PostMapping("/forgot-password/reset")
+    public String forgotPasswordReset(@RequestParam String identifier,
+            @RequestParam String newPassword,
+            @RequestParam String confirmPassword,
+            HttpSession session,
+            Model model,
+            RedirectAttributes redirectAttributes) {
+        try {
+            Object allowedIdentifier = session.getAttribute(RESET_ALLOWED_IDENTIFIER);
+            if (allowedIdentifier == null || !identifier.equals(allowedIdentifier.toString())) {
+                throw new ValidationException("Please verify your security answer first");
+            }
+            if (!newPassword.equals(confirmPassword)) {
+                throw new ValidationException("Passwords do not match");
+            }
+            userService.resetPasswordWithoutCurrent(identifier, newPassword);
+            session.removeAttribute(RESET_ALLOWED_IDENTIFIER);
+            redirectAttributes.addFlashAttribute("message", "Password reset successful. Please login.");
+            return "redirect:/login";
+        } catch (RuntimeException e) {
+            model.addAttribute("identifier", identifier);
+            model.addAttribute("error", e.getMessage());
+            return "auth/reset-password-security-final";
+        }
     }
 
     @PostMapping("/register")
@@ -89,7 +159,7 @@ public class AuthController {
 
     @GetMapping("/")
     public String home() {
-        return "redirect:/login";
+        return "landing";
     }
 }
 

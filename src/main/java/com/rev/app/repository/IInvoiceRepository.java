@@ -42,4 +42,8 @@ public interface IInvoiceRepository extends JpaRepository<Invoice, Long> {
     BigDecimal sumOutstandingInvoiceAmount(@Param("user") User user);
 
     long countByBusinessUserAndStatus(User businessUser, InvoiceStatus status);
+
+    List<Invoice> findByCustomerEmailOrderByCreatedAtDesc(String customerEmail);
+
+    List<Invoice> findByCustomerEmailAndStatusOrderByCreatedAtDesc(String customerEmail, InvoiceStatus status);
 }

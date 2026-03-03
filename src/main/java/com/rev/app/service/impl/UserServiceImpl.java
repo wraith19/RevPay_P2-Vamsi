@@ -198,6 +198,48 @@ public class UserServiceImpl implements IUserService {
     }
 
     @Override
+    public List<SecurityQuestion> getSecurityQuestionsForUser(String identifier) {
+        User user = userRepository.findByEmailOrPhone(identifier, identifier)
+                .orElseThrow(() -> new ResourceNotFoundException("Account not found"));
+        return securityQuestionRepository.findByUserId(user.getId());
+    }
+
+    @Override
+    @Transactional
+    public void validateSecurityQuestionAnswer(String identifier, Long questionId, String answer) {
+        if (answer == null || answer.isBlank()) {
+            throw new ValidationException("Security answer is required");
+        }
+
+        User user = userRepository.findByEmailOrPhone(identifier, identifier)
+                .orElseThrow(() -> new ResourceNotFoundException("Account not found"));
+        SecurityQuestion securityQuestion = securityQuestionRepository.findById(questionId)
+                .orElseThrow(() -> new ResourceNotFoundException("Security question not found"));
+
+        if (!securityQuestion.getUser().getId().equals(user.getId())) {
+            throw new ForbiddenOperationException("Invalid security question selection");
+        }
+        if (!passwordEncoder.matches(answer.trim(), securityQuestion.getAnswer())) {
+            throw new ValidationException("Security answer is incorrect");
+        }
+    }
+
+    @Override
+    @Transactional
+    public void resetPasswordWithoutCurrent(String identifier, String newPassword) {
+        if (newPassword == null || newPassword.length() < 6) {
+            throw new ValidationException("Password must be at least 6 characters");
+        }
+
+        User user = userRepository.findByEmailOrPhone(identifier, identifier)
+                .orElseThrow(() -> new ResourceNotFoundException("Account not found"));
+
+        user.setPassword(passwordEncoder.encode(newPassword));
+        userRepository.save(user);
+        logger.info("Password reset completed for user: {}", user.getEmail());
+    }
+
+    @Override
     @Transactional
     public void setTransactionPin(Long userId, String pin) {
         User user = userRepository.findById(userId)
@@ -262,6 +304,47 @@ public class UserServiceImpl implements IUserService {
         user.setEnabled(enabled);
         userRepository.save(user);
         logger.info("Updated enabled status for user {} to {}", user.getEmail(), enabled);
+    }
+
+    @Override
+    @Transactional
+    public User updateUserAsAdmin(Long userId, String fullName, String email, String phone, Role role,
+                                  Boolean enabled, String businessName, String businessType, String taxId,
+                                  String businessAddress, String businessContactInfo, Boolean businessVerified) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+
+        if (!user.getEmail().equalsIgnoreCase(email) && userRepository.existsByEmail(email)) {
+            throw new ConflictException("Email already in use");
+        }
+        if (!user.getPhone().equals(phone) && userRepository.existsByPhone(phone)) {
+            throw new ConflictException("Phone number already in use");
+        }
+
+        user.setFullName(fullName);
+        user.setEmail(email);
+        user.setPhone(phone);
+        user.setRole(role);
+        user.setEnabled(enabled != null ? enabled : true);
+
+        if (role == Role.BUSINESS) {
+            user.setBusinessName(businessName);
+            user.setBusinessType(businessType);
+            user.setTaxId(taxId);
+            user.setBusinessAddress(businessAddress);
+            user.setBusinessContactInfo(businessContactInfo);
+            user.setBusinessVerified(businessVerified != null ? businessVerified : false);
+        } else {
+            user.setBusinessName(null);
+            user.setBusinessType(null);
+            user.setTaxId(null);
+            user.setBusinessAddress(null);
+            user.setBusinessContactInfo(null);
+            user.setBusinessVerified(false);
+        }
+
+        logger.info("Admin updated account {} ({})", user.getId(), user.getEmail());
+        return userRepository.save(user);
     }
 
     @Override

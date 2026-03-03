@@ -34,6 +34,12 @@ public interface IUserService {
 
     void changePassword(Long userId, String currentPassword, String newPassword);
 
+    List<SecurityQuestion> getSecurityQuestionsForUser(String identifier);
+
+    void validateSecurityQuestionAnswer(String identifier, Long questionId, String answer);
+
+    void resetPasswordWithoutCurrent(String identifier, String newPassword);
+
     void setTransactionPin(Long userId, String pin);
 
     boolean verifyTransactionPin(Long userId, String pin);
@@ -45,6 +51,10 @@ public interface IUserService {
     void verifyBusiness(Long userId);
 
     void setUserEnabled(Long userId, boolean enabled);
+
+    User updateUserAsAdmin(Long userId, String fullName, String email, String phone, Role role,
+                           Boolean enabled, String businessName, String businessType, String taxId,
+                           String businessAddress, String businessContactInfo, Boolean businessVerified);
 
     long countUsersByRole(Role role);
 

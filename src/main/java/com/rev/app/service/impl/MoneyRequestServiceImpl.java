@@ -30,6 +30,7 @@ public class MoneyRequestServiceImpl implements IMoneyRequestService {
     @Override
     @Transactional
     public MoneyRequest createRequest(User requester, User requestee, BigDecimal amount, String purpose) {
+        ensureBusinessUserVerified(requester);
         if (requester.getId().equals(requestee.getId())) {
             throw new ValidationException("Cannot request money from yourself");
         }
@@ -58,6 +59,7 @@ public class MoneyRequestServiceImpl implements IMoneyRequestService {
     @Override
     @Transactional
     public MoneyRequest acceptRequest(Long requestId, User requestee) {
+        ensureBusinessUserVerified(requestee);
         MoneyRequest request = moneyRequestRepository.findById(requestId)
                 .orElseThrow(() -> new ResourceNotFoundException("Request not found"));
 
@@ -85,6 +87,7 @@ public class MoneyRequestServiceImpl implements IMoneyRequestService {
     @Override
     @Transactional
     public MoneyRequest declineRequest(Long requestId, User requestee) {
+        ensureBusinessUserVerified(requestee);
         MoneyRequest request = moneyRequestRepository.findById(requestId)
                 .orElseThrow(() -> new ResourceNotFoundException("Request not found"));
 
@@ -109,6 +112,7 @@ public class MoneyRequestServiceImpl implements IMoneyRequestService {
     @Override
     @Transactional
     public MoneyRequest cancelRequest(Long requestId, User requester) {
+        ensureBusinessUserVerified(requester);
         MoneyRequest request = moneyRequestRepository.findById(requestId)
                 .orElseThrow(() -> new ResourceNotFoundException("Request not found"));
 
@@ -144,5 +148,11 @@ public class MoneyRequestServiceImpl implements IMoneyRequestService {
     @Override
     public long getPendingRequestCount(User user) {
         return moneyRequestRepository.countByRequesteeAndStatus(user, RequestStatus.PENDING);
+    }
+
+    private void ensureBusinessUserVerified(User user) {
+        if (user != null && user.getRole() == Role.BUSINESS && (user.getBusinessVerified() == null || !user.getBusinessVerified())) {
+            throw new ForbiddenOperationException("Business account is pending verification by admin");
+        }
     }
 }
