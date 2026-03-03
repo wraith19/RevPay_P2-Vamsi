@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="~{fragments/layout :: head('Welcome')}"></head>
+
+<body class="lp-body">
+
+    <main class="lp-shell">
+
+        <!-- Topbar -->
+        <header class="lp-topbar">
+            <a th:href="@{/}" class="lp-brand">
+                <span class="lp-brand-icon"><i class="bi bi-wallet2"></i></span>
+                RevPay
+            </a>
+            <div class="lp-top-actions">
+                <a th:href="@{/login}" class="btn btn-secondary btn-sm">Sign in</a>
+                <a th:href="@{/register}" class="btn btn-primary   btn-sm">Get started</a>
+            </div>
+        </header>
+
+        <!-- Hero -->
+        <section class="lp-hero">
+            <div class="lp-hero-inner">
+
+                <!-- Left: copy -->
+                <div class="lp-left">
+                    <h1>Smart payments,<br><span class="lp-accent">simplified.</span></h1>
+                    <p>RevPay is a digital payments platform that lets you send money, manage your wallet, handle
+                        payment requests, and track your finances — all from one secure dashboard.</p>
+
+                    <ul class="lp-features">
+                        <li><i class="bi bi-check-circle-fill"></i> Wallet &amp; balance management</li>
+                        <li><i class="bi bi-check-circle-fill"></i> Instant fund transfers</li>
+                        <li><i class="bi bi-check-circle-fill"></i> Payment requests &amp; invoicing</li>
+                        <li><i class="bi bi-check-circle-fill"></i> Business analytics &amp; reporting</li>
+                        <li><i class="bi bi-check-circle-fill"></i> Role-based access control</li>
+                    </ul>
+
+                </div>
+
+                <!-- Right: feature highlights -->
+                <div class="lp-right">
+                    <div class="lp-highlights">
+                        <div class="lp-highlight-item">
+                            <span class="lp-hi-icon" style="background:#dbeafe"><i class="bi bi-send-fill"
+                                    style="color:#1d4ed8"></i></span>
+                            <div>
+                                <div class="lp-hi-title">Fast Transfers</div>
+                                <div class="lp-hi-desc">Send and receive funds instantly between accounts.</div>
+                            </div>
+                        </div>
+                        <div class="lp-highlight-item">
+                            <span class="lp-hi-icon" style="background:#d1fae5"><i class="bi bi-receipt-cutoff"
+                                    style="color:#065f46"></i></span>
+                            <div>
+                                <div class="lp-hi-title">Invoicing</div>
+                                <div class="lp-hi-desc">Create and manage invoices with ease.</div>
+                            </div>
+                        </div>
+                        <div class="lp-highlight-item">
+                            <span class="lp-hi-icon" style="background:#ede9fe"><i class="bi bi-graph-up-arrow"
+                                    style="color:#5b21b6"></i></span>
+                            <div>
+                                <div class="lp-hi-title">Analytics</div>
+                                <div class="lp-hi-desc">Track cash flow and business performance in real time.</div>
+                            </div>
+                        </div>
+                        <div class="lp-highlight-item">
+                            <span class="lp-hi-icon" style="background:#fef3c7"><i class="bi bi-shield-lock-fill"
+                                    style="color:#92400e"></i></span>
+                            <div>
+                                <div class="lp-hi-title">Secure by Design</div>
+                                <div class="lp-hi-desc">Role-based access keeps every account protected.</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <section class="lp-section lp-section-about">
+            <div class="lp-section-card">
+                <h2>Built for Everyday Financial Workflows</h2>
+                <p>RevPay brings wallets, requests, invoicing, and approvals into one consistent experience so teams and
+                    individuals can move faster with clear visibility and control.</p>
+            </div>
+        </section>
+
+        <section id="features" class="lp-section">
+            <div class="lp-section-head">
+                <h2>What You Can Do</h2>
+                <p>Use one platform for personal payments, business operations, and account governance.</p>
+            </div>
+            <div class="lp-grid">
+                <article class="lp-grid-card">
+                    <h3>Unified Wallet Operations</h3>
+                    <p>Send, receive, add, and withdraw funds through a secure, real-time wallet flow.</p>
+                </article>
+                <article class="lp-grid-card">
+                    <h3>Business Payment Management</h3>
+                    <p>Create invoices, manage requests, and monitor payment activity with organized records.</p>
+                </article>
+                <article class="lp-grid-card">
+                    <h3>Role-Based Controls</h3>
+                    <p>Keep user privileges and operational actions aligned with centralized admin oversight.</p>
+                </article>
+            </div>
+        </section>
+
+        <section class="lp-section">
+            <div class="lp-section-head">
+                <h2>Quick Answers</h2>
+                <p>Simple guidance for getting started with RevPay.</p>
+            </div>
+            <div class="lp-faq-grid">
+                <article class="lp-faq-item">
+                    <h4>How do I start using RevPay?</h4>
+                    <p>Open the platform, access your dashboard, and configure wallet and profile preferences.</p>
+                </article>
+                <article class="lp-faq-item">
+                    <h4>Who can use business features?</h4>
+                    <p>Business accounts can access invoicing, loan workflows, and admin-reviewed operations.</p>
+                </article>
+                <article class="lp-faq-item">
+                    <h4>Is account activity traceable?</h4>
+                    <p>Yes. RevPay keeps transaction history, status tracking, and operational visibility in one place.</p>
+                </article>
+                <article class="lp-faq-item">
+                    <h4>How is account access protected?</h4>
+                    <p>Role-based permissions and secure authentication guard sensitive actions.</p>
+                </article>
+            </div>
+        </section>
+
+        <section class="lp-section lp-cta-wrap">
+            <div class="lp-cta-card">
+                <h2>Ready to Get Started?</h2>
+                <p>Continue to your workspace or review the platform capabilities.</p>
+                <div class="lp-actions">
+                    <a th:href="@{/login}" class="btn btn-secondary">
+                        <i class="bi bi-box-arrow-in-right"></i> Sign in
+                    </a>
+                    <a th:href="@{/register}" class="btn btn-primary">
+                        <i class="bi bi-person-plus-fill"></i> Join RevPay
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        <footer class="lp-footer">
+            <span>&copy; 2026 RevPay. All rights reserved.</span>
+        </footer>
+
+    </main>
+
+    <div th:replace="~{fragments/layout :: scripts}"></div>
+</body>
+
+</html>

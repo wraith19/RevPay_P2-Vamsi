@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="~{fragments/layout :: head('Edit User Account')}"></head>
+
+<body>
+<nav th:replace="~{fragments/layout :: navbar}"></nav>
+<div class="main-content">
+    <div th:replace="~{fragments/layout :: alerts}"></div>
+    <div class="page-header">
+        <h1>Edit User Account</h1>
+        <a th:href="@{/admin/users}" class="btn btn-secondary">Back to User Management</a>
+    </div>
+
+    <div class="card form-card">
+        <form th:action="@{'/admin/users/' + ${editUser.id} + '/edit'}" method="post" class="app-form">
+            <h3 class="section-title">Basic Information</h3>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="fullName">Full Name *</label>
+                    <input type="text" id="fullName" name="fullName" class="form-control" required
+                           th:value="${editUser.fullName}">
+                </div>
+                <div class="form-group">
+                    <label for="role">Role *</label>
+                    <select id="role" name="role" class="form-control" required>
+                        <option th:each="r : ${roles}" th:value="${r}" th:text="${r}" th:selected="${editUser.role == r}"></option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="email">Email *</label>
+                    <input type="email" id="email" name="email" class="form-control" required
+                           th:value="${editUser.email}">
+                </div>
+                <div class="form-group">
+                    <label for="phone">Phone *</label>
+                    <input type="text" id="phone" name="phone" class="form-control" required
+                           th:value="${editUser.phone}">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="enabled">Account Status</label>
+                <select id="enabled" name="enabled" class="form-control">
+                    <option value="true" th:selected="${editUser.enabled != null && editUser.enabled}">Active</option>
+                    <option value="false" th:selected="${editUser.enabled == null || !editUser.enabled}">Inactive</option>
+                </select>
+            </div>
+
+            <div id="businessFields" th:style="${editUser.role.name() == 'BUSINESS'} ? '' : 'display:none;'">
+                <h3 class="section-title">Business Details</h3>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="businessName">Business Name</label>
+                        <input type="text" id="businessName" name="businessName" class="form-control"
+                               th:value="${editUser.businessName}">
+                    </div>
+                    <div class="form-group">
+                        <label for="businessType">Business Type</label>
+                        <input type="text" id="businessType" name="businessType" class="form-control"
+                               th:value="${editUser.businessType}">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="taxId">Tax ID</label>
+                        <input type="text" id="taxId" name="taxId" class="form-control" th:value="${editUser.taxId}">
+                    </div>
+                    <div class="form-group">
+                        <label for="businessContactInfo">Business Contact Info</label>
+                        <input type="text" id="businessContactInfo" name="businessContactInfo" class="form-control"
+                               th:value="${editUser.businessContactInfo}">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="businessAddress">Business Address</label>
+                    <textarea id="businessAddress" name="businessAddress" class="form-control" rows="2"
+                              th:text="${editUser.businessAddress}"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="businessVerified">Business Verification</label>
+                    <select id="businessVerified" name="businessVerified" class="form-control">
+                        <option value="true" th:selected="${editUser.businessVerified != null && editUser.businessVerified}">Verified</option>
+                        <option value="false" th:selected="${editUser.businessVerified == null || !editUser.businessVerified}">Not Verified</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">Save Changes</button>
+                <a th:href="@{/admin/users}" class="btn btn-secondary">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+<div th:replace="~{fragments/layout :: scripts}"></div>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        var roleSelect = document.getElementById('role');
+        var businessFields = document.getElementById('businessFields');
+
+        function toggleBusinessFields() {
+            businessFields.style.display = roleSelect.value === 'BUSINESS' ? '' : 'none';
+        }
+
+        roleSelect.addEventListener('change', toggleBusinessFields);
+        toggleBusinessFields();
+    });
+</script>
+</body>
+
+</html>

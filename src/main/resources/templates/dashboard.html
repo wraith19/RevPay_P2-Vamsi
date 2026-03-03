@@ -29,13 +29,13 @@
     </div>
 
     <div class="stats-grid">
-        <div class="stat-card">
+        <a th:href="@{/requests/incoming}" class="stat-card stat-card-link" aria-label="Open pending requests">
             <div class="stat-icon"><i class="bi bi-envelope-paper"></i></div>
             <div class="stat-info">
                 <h3 th:text="${pendingRequests}">0</h3>
                 <p>Pending Requests</p>
             </div>
-        </div>
+        </a>
                 <a th:href="@{/notifications}" class="stat-card stat-card-link" aria-label="Open notifications">
             <div class="stat-icon"><i class="bi bi-bell"></i></div>
             <div class="stat-info">
@@ -80,11 +80,15 @@
             <tbody>
             <tr th:each="txn : ${recentTransactions}">
                 <td th:text="${#temporals.format(txn.timestamp, 'MMM dd, yyyy')}">Jan 01</td>
-                <td><span class="badge" th:classappend="'badge-' + ${txn.type.name().toLowerCase()}" th:text="${txn.type}">SEND</span></td>
+                <td>
+                    <span class="badge"
+                          th:classappend="${txn.sender != null && txn.sender.id == user.id} ? 'badge-send' : 'badge-receive'"
+                          th:text="${txn.sender != null && txn.sender.id == user.id} ? 'DEBITED' : 'CREDITED'">DEBITED</span>
+                </td>
                 <td class="amount"
-                    th:classappend="${txn.type.name() == 'SEND' || txn.type.name() == 'WITHDRAWAL'} ? 'amount-out' : 'amount-in'"
-                    th:text="${(txn.type.name() == 'SEND' || txn.type.name() == 'WITHDRAWAL') ? '-$' : '+$'} + ${#numbers.formatDecimal(txn.amount, 1, 2)}">$0.00</td>
-                <td th:text="${txn.sender != null && txn.receiver != null} ? (${txn.type.name() == 'SEND'} ? ${txn.receiver.fullName} : ${txn.sender.fullName}) : 'Wallet'">N/A</td>
+                    th:classappend="${txn.sender != null && txn.sender.id == user.id} ? 'amount-out' : 'amount-in'"
+                    th:text="${(txn.sender != null && txn.sender.id == user.id) ? '-$' : '+$'} + ${#numbers.formatDecimal(txn.amount, 1, 2)}">$0.00</td>
+                <td th:text="${txn.sender != null && txn.receiver != null} ? (${txn.sender.id == user.id} ? ${txn.receiver.fullName} : ${txn.sender.fullName}) : 'Wallet'">N/A</td>
                 <td><span class="badge" th:classappend="'badge-' + ${txn.status.name().toLowerCase()}" th:text="${txn.status}">SUCCESS</span></td>
             </tr>
             </tbody>

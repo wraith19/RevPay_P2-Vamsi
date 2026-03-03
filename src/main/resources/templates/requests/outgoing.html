@@ -4,52 +4,103 @@
 <head th:replace="~{fragments/layout :: head('Outgoing Requests')}"></head>
 
 <body>
-    <nav th:replace="~{fragments/layout :: navbar}"></nav>
-    <div class="main-content">
-        <div th:replace="~{fragments/layout :: alerts}"></div>
-        <div class="page-header">
-            <h1>Outgoing Money Requests</h1>
-            <div class="page-actions">
-                <a th:href="@{/requests/incoming}" class="btn btn-secondary">View Incoming -></a>
-                <a th:href="@{/requests/create}" class="btn btn-primary">+ New Request</a>
-            </div>
-        </div>
-        <div class="card">
-            <div th:if="${#lists.isEmpty(requests)}" class="empty-state">
-                <p>No outgoing requests.</p>
-            </div>
-            <table th:unless="${#lists.isEmpty(requests)}" class="data-table">
-                <thead>
-                    <tr>
-                        <th>To</th>
-                        <th>Amount</th>
-                        <th>Purpose</th>
-                        <th>Date</th>
-                        <th>Status</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr th:each="req : ${requests}">
-                        <td th:text="${req.requestee.fullName}">John</td>
-                        <td class="amount">$<span th:text="${#numbers.formatDecimal(req.amount, 1, 2)}">0.00</span></td>
-                        <td th:text="${req.purpose ?: '-'}">-</td>
-                        <td th:text="${#temporals.format(req.createdAt, 'MMM dd, yyyy')}">Jan 01</td>
-                        <td><span class="badge" th:classappend="'badge-' + ${req.status.name().toLowerCase()}"
-                                th:text="${req.status}">PENDING</span></td>
-                        <td th:if="${req.status.name() == 'PENDING'}">
-                            <form th:action="@{'/requests/' + ${req.id} + '/cancel'}" method="post">
-                                <button type="submit" class="btn btn-sm btn-warning">Cancel</button>
-                            </form>
-                        </td>
-                        <td th:if="${req.status.name() != 'PENDING'}">-</td>
-                    </tr>
-                </tbody>
-            </table>
+<nav th:replace="~{fragments/layout :: navbar}"></nav>
+<div class="main-content">
+    <div th:replace="~{fragments/layout :: alerts}"></div>
+
+    <div class="page-header">
+        <h1>Outgoing Requests</h1>
+        <div class="page-actions">
+            <a th:href="@{/requests/incoming}" class="btn btn-secondary">View Incoming -></a>
+            <a th:href="@{/requests/create}" class="btn btn-primary">+ New Request</a>
+            <a th:if="${user.role.name() == 'BUSINESS'}" th:href="@{/invoices/create}" class="btn btn-primary">+ New Invoice</a>
         </div>
     </div>
-    <footer th:replace="~{fragments/layout :: footer}"></footer>
-    <div th:replace="~{fragments/layout :: scripts}"></div>
+
+    <div class="card">
+        <div class="card-header">
+            <h2>Money Requests Sent</h2>
+        </div>
+        <div th:if="${#lists.isEmpty(requests)}" class="empty-state">
+            <p>No outgoing money requests.</p>
+        </div>
+        <table th:unless="${#lists.isEmpty(requests)}" class="data-table">
+            <thead>
+            <tr>
+                <th>To</th>
+                <th>Amount</th>
+                <th>Purpose</th>
+                <th>Date</th>
+                <th>Status</th>
+                <th>Actions</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="req : ${requests}">
+                <td th:text="${req.requestee.fullName}">John</td>
+                <td class="amount">$<span th:text="${#numbers.formatDecimal(req.amount, 1, 2)}">0.00</span></td>
+                <td th:text="${req.purpose ?: '-'}">-</td>
+                <td th:text="${#temporals.format(req.createdAt, 'MMM dd, yyyy')}">Jan 01</td>
+                <td><span class="badge" th:classappend="'badge-' + ${req.status.name().toLowerCase()}"
+                          th:text="${req.status}">PENDING</span></td>
+                <td th:if="${req.status.name() == 'PENDING'}">
+                    <form th:action="@{'/requests/' + ${req.id} + '/cancel'}" method="post">
+                        <button type="submit" class="btn btn-sm btn-warning">Cancel</button>
+                    </form>
+                </td>
+                <td th:if="${req.status.name() != 'PENDING'}">-</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div th:if="${user.role.name() == 'BUSINESS'}" class="card">
+        <div class="card-header">
+            <h2>Invoices Sent</h2>
+        </div>
+        <div th:if="${#lists.isEmpty(sentInvoices)}" class="empty-state">
+            <p>No invoices created yet.</p>
+        </div>
+        <table th:unless="${#lists.isEmpty(sentInvoices)}" class="data-table">
+            <thead>
+            <tr>
+                <th>Invoice #</th>
+                <th>Customer</th>
+                <th>Amount</th>
+                <th>Created</th>
+                <th>Status</th>
+                <th>Actions</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="inv : ${sentInvoices}">
+                <td><a th:href="@{'/invoices/' + ${inv.id}}" class="link" th:text="${inv.invoiceNumber}">INV-001</a></td>
+                <td th:text="${inv.customerName}">Customer</td>
+                <td class="amount">$<span th:text="${inv.totalAmount != null ? #numbers.formatDecimal(inv.totalAmount, 1, 2) : '0.00'}">0.00</span></td>
+                <td th:text="${#temporals.format(inv.createdAt, 'MMM dd, yyyy')}">Jan 01</td>
+                <td><span class="badge" th:classappend="'badge-' + ${inv.status.name().toLowerCase()}"
+                          th:text="${inv.status}">DRAFT</span></td>
+                <td>
+                    <form th:if="${inv.status.name() == 'DRAFT'}" th:action="@{'/invoices/' + ${inv.id} + '/send'}"
+                          method="post" style="display:inline;">
+                        <button type="submit" class="btn btn-sm btn-primary">Send</button>
+                    </form>
+                    <form th:if="${inv.status.name() == 'SENT' || inv.status.name() == 'OVERDUE'}"
+                          th:action="@{'/invoices/' + ${inv.id} + '/mark-paid'}" method="post" style="display:inline;">
+                        <button type="submit" class="btn btn-sm btn-success">Mark Paid</button>
+                    </form>
+                    <form th:if="${inv.status.name() != 'PAID' && inv.status.name() != 'CANCELLED'}"
+                          th:action="@{'/invoices/' + ${inv.id} + '/cancel'}" method="post" style="display:inline;">
+                        <button type="submit" class="btn btn-sm btn-danger">Cancel</button>
+                    </form>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+<div th:replace="~{fragments/layout :: scripts}"></div>
 </body>
 
 </html>

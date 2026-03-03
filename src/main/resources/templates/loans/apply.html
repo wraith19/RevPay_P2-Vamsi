@@ -11,7 +11,7 @@
             <h1>Apply for Business Loan</h1>
         </div>
         <div class="card form-card">
-            <form th:action="@{/loans/apply}" method="post" class="app-form">
+            <form th:action="@{/loans/apply}" method="post" enctype="multipart/form-data" class="app-form">
                 <div class="form-row">
                     <div class="form-group"><label for="amount">Loan Amount ($) *</label><input type="number"
                             id="amount" name="amount" required min="1000" step="100" class="form-control"
@@ -33,9 +33,13 @@
                 <div class="form-group"><label for="financialInfo">Financial Information</label><textarea
                         id="financialInfo" name="financialInfo" class="form-control" rows="3"
                         placeholder="Annual revenue, profit, etc."></textarea></div>
-                <div class="form-group"><label for="supportingDocuments">Supporting Documents</label><input type="text"
+                <div class="form-group"><label for="supportingDocuments">Supporting Document Link (Optional)</label><input type="text"
                         id="supportingDocuments" name="supportingDocuments" class="form-control"
-                        placeholder="Document references (simulated)"></div>
+                        placeholder="Paste a document URL/reference"></div>
+                <div class="form-group"><label for="supportingDocumentFile">Upload Supporting Document (Optional)</label>
+                    <input type="file" id="supportingDocumentFile" name="supportingDocumentFile" class="form-control"
+                           accept=".pdf,.doc,.docx,.png,.jpg,.jpeg">
+                </div>
                 <p class="form-hint">Interest Rate: 12% p.a. | EMI will be calculated upon submission.</p>
                 <div class="form-actions">
                     <button type="submit" class="btn btn-primary">Submit Application</button>

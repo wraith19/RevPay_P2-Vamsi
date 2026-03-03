@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="~{fragments/layout :: head('Received Invoices')}"></head>
+
+<body>
+    <nav th:replace="~{fragments/layout :: navbar}"></nav>
+    <div class="main-content">
+        <div th:replace="~{fragments/layout :: alerts}"></div>
+        <div class="page-header">
+            <h1>Received Invoices</h1>
+        </div>
+
+        <div class="card">
+            <div th:if="${#lists.isEmpty(invoices)}" class="empty-state">
+                <i class="bi bi-receipt" style="font-size:2rem;color:#94a3b8"></i>
+                <p style="margin-top:0.5rem">No pending invoices addressed to you.</p>
+            </div>
+
+            <table th:unless="${#lists.isEmpty(invoices)}" class="data-table">
+                <thead>
+                    <tr>
+                        <th>Invoice #</th>
+                        <th>From</th>
+                        <th>Amount</th>
+                        <th>Due Date</th>
+                        <th>Status</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="inv : ${invoices}">
+                        <td th:text="${inv.invoiceNumber}">INV-001</td>
+                        <td th:text="${inv.businessUser.fullName}">Business</td>
+                        <td class="amount">$<span
+                                th:text="${inv.totalAmount != null ? #numbers.formatDecimal(inv.totalAmount, 1, 2) : '0.00'}">0.00</span>
+                        </td>
+                        <td th:text="${inv.dueDate != null ? #temporals.format(inv.dueDate, 'MMM dd, yyyy') : '-'}">-
+                        </td>
+                        <td><span class="badge" th:classappend="'badge-' + ${inv.status.name().toLowerCase()}"
+                                th:text="${inv.status}">SENT</span></td>
+                        <td>
+                            <form th:action="@{'/invoices/' + ${inv.id} + '/pay'}" method="post"
+                                onsubmit="return confirm('Pay $' + /*[[${inv.totalAmount}]]*/ '0' + ' for invoice ' + /*[[${inv.invoiceNumber}]]*/ '' + '?')">
+                                <button type="submit" class="btn btn-sm btn-primary">
+                                    <i class="bi bi-credit-card-fill"></i> Pay Now
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <footer th:replace="~{fragments/layout :: footer}"></footer>
+    <div th:replace="~{fragments/layout :: scripts}"></div>
+</body>
+
+</html>

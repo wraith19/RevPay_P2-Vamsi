@@ -37,8 +37,8 @@
                 <th>Email</th>
                 <th>Role</th>
                 <th>Business Verified</th>
-                <th>Status</th>
-                <th>Action</th>
+                <th>Account Status</th>
+                <th>Controls</th>
             </tr>
             </thead>
             <tbody>
@@ -50,16 +50,19 @@
                 <td th:text="${u.businessVerified != null && u.businessVerified ? 'Yes' : 'No'}">No</td>
                 <td>
                     <span class="badge" th:classappend="${u.enabled != null && u.enabled} ? 'badge-success' : 'badge-danger'"
-                          th:text="${u.enabled != null && u.enabled ? 'Enabled' : 'Disabled'}">Enabled</span>
+                          th:text="${u.enabled != null && u.enabled ? 'Active' : 'Inactive'}">Active</span>
                 </td>
                 <td>
-                    <form th:if="${u.role.name() != 'ADMIN'}" th:action="@{'/admin/users/' + ${u.id} + '/status'}" method="post">
-                        <input type="hidden" name="enabled" th:value="${!(u.enabled != null && u.enabled)}">
-                        <button type="submit" class="btn btn-sm"
-                                th:classappend="${u.enabled != null && u.enabled} ? 'btn-danger' : 'btn-success'"
-                                th:text="${u.enabled != null && u.enabled ? 'Disable' : 'Enable'}">Disable</button>
-                    </form>
-                    <span th:if="${u.role.name() == 'ADMIN'}">Protected</span>
+                    <div class="d-flex gap-2 flex-wrap">
+                        <a th:href="@{'/admin/users/' + ${u.id} + '/edit'}" class="btn btn-sm btn-secondary">Edit</a>
+                        <form th:if="${u.role.name() != 'ADMIN'}" th:action="@{'/admin/users/' + ${u.id} + '/status'}" method="post">
+                            <input type="hidden" name="enabled" th:value="${!(u.enabled != null && u.enabled)}">
+                            <button type="submit" class="btn btn-sm"
+                                    th:classappend="${u.enabled != null && u.enabled} ? 'btn-danger' : 'btn-success'"
+                                    th:text="${u.enabled != null && u.enabled ? 'Set Inactive' : 'Set Active'}">Set Inactive</button>
+                        </form>
+                        <span th:if="${u.role.name() == 'ADMIN'}" class="badge badge-info">Admin Protected</span>
+                    </div>
                 </td>
             </tr>
             </tbody>

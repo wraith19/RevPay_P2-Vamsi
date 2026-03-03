@@ -33,6 +33,15 @@
                             th:text="${#numbers.formatDecimal(loan.repaidAmount, 1, 2)}">0.00</span></span></div>
                 <div class="detail-item"><span class="detail-label">Purpose</span><span class="detail-value"
                         th:text="${loan.purpose}">-</span></div>
+                <div th:if="${loan.supportingDocuments != null and !#strings.isEmpty(loan.supportingDocuments)}" class="detail-item">
+                    <span class="detail-label">Supporting Document</span>
+                    <span class="detail-value">
+                        <a th:if="${#strings.startsWith(loan.supportingDocuments, '/uploads/') or #strings.startsWith(loan.supportingDocuments, 'http')}"
+                           th:href="${loan.supportingDocuments}" target="_blank" rel="noopener">View Document</a>
+                        <span th:if="${!(#strings.startsWith(loan.supportingDocuments, '/uploads/') or #strings.startsWith(loan.supportingDocuments, 'http'))}"
+                              th:text="${loan.supportingDocuments}">-</span>
+                    </span>
+                </div>
                 <div class="detail-item"><span class="detail-label">Applied On</span><span class="detail-value"
                         th:text="${#temporals.format(loan.appliedAt, 'MMM dd, yyyy')}">-</span></div>
                 <div th:if="${loan.approvedAt != null}" class="detail-item"><span class="detail-label">Approved
@@ -48,6 +57,13 @@
         <div th:if="${loan.status.name() == 'PENDING' and isAdmin}" class="card form-card">
             <h3>Admin Actions</h3>
             <p class="form-hint">Approve or reject this pending loan application.</p>
+            <div th:if="${loan.supportingDocuments != null and !#strings.isEmpty(loan.supportingDocuments)}" class="mb-3">
+                <strong>Supporting Document:</strong>
+                <a th:if="${#strings.startsWith(loan.supportingDocuments, '/uploads/') or #strings.startsWith(loan.supportingDocuments, 'http')}"
+                   th:href="${loan.supportingDocuments}" target="_blank" rel="noopener">View Document</a>
+                <span th:if="${!(#strings.startsWith(loan.supportingDocuments, '/uploads/') or #strings.startsWith(loan.supportingDocuments, 'http'))}"
+                      th:text="${loan.supportingDocuments}">-</span>
+            </div>
             <form th:action="@{'/loans/' + ${loan.id} + '/approve'}" method="post" class="app-form">
                 <div class="form-group">
                     <label for="adminNote">Decision Note (optional)</label>
