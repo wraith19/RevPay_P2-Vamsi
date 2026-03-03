@@ -1,10 +1,6 @@
-package com.rev.app.rest;
+package com.rev.app.exception;
 
 import com.rev.app.dto.ApiErrorResponse;
-import com.rev.app.exception.ConflictException;
-import com.rev.app.exception.ForbiddenOperationException;
-import com.rev.app.exception.ResourceNotFoundException;
-import com.rev.app.exception.ValidationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;

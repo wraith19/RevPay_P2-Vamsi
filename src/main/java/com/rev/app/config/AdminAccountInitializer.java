@@ -43,7 +43,27 @@ public class AdminAccountInitializer {
     @Bean
     public ApplicationRunner seedAdminAccount() {
         return args -> {
-            if (userRepository.findByEmail(adminEmail).isPresent()) {
+            User existing = userRepository.findByEmail(adminEmail).orElse(null);
+            if (existing != null) {
+                boolean updated = false;
+
+                if (existing.getRole() != Role.ADMIN) {
+                    existing.setRole(Role.ADMIN);
+                    updated = true;
+                }
+                if (existing.getEnabled() == null || !existing.getEnabled()) {
+                    existing.setEnabled(true);
+                    updated = true;
+                }
+                if (existing.getBusinessVerified() == null || !existing.getBusinessVerified()) {
+                    existing.setBusinessVerified(true);
+                    updated = true;
+                }
+
+                if (updated) {
+                    userRepository.save(existing);
+                    logger.warn("Configured admin account updated with ADMIN privileges: {}", adminEmail);
+                }
                 return;
             }
 

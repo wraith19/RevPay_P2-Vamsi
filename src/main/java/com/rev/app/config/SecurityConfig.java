@@ -22,13 +22,17 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/", "/login", "/register", "/register/**", "/css/**", "/js/**", "/images/**")
+                        .requestMatchers("/", "/login", "/register", "/register/**", "/forgot-password",
+                                "/forgot-password/verify", "/forgot-password/reset",
+                                "/css/**", "/js/**", "/images/**")
                         .permitAll()
                         .requestMatchers("/admin/**").hasRole("ADMIN")
                         .requestMatchers("/loans/*/approve", "/loans/*/reject").hasRole("ADMIN")
-                        .requestMatchers("/api/loans/*/approve", "/api/loans/*/reject", "/api/loans/pending").hasRole("ADMIN")
+                        .requestMatchers("/api/loans/*/approve", "/api/loans/*/reject", "/api/loans/pending")
+                        .hasRole("ADMIN")
                         .requestMatchers("/api/invoices/**").hasRole("BUSINESS")
                         .requestMatchers("/api/loans/**").hasAnyRole("BUSINESS", "ADMIN")
+                        .requestMatchers("/invoices/*/pay").authenticated()
                         .requestMatchers("/invoices/**", "/analytics/**").hasRole("BUSINESS")
                         .requestMatchers("/loans/**").hasAnyRole("BUSINESS", "ADMIN")
                         .anyRequest().authenticated())
@@ -42,7 +46,7 @@ public class SecurityConfig {
                         .permitAll())
                 .logout(logout -> logout
                         .logoutUrl("/logout")
-                        .logoutSuccessUrl("/login?logout=true")
+                        .logoutSuccessUrl("/")
                         .invalidateHttpSession(true)
                         .deleteCookies("JSESSIONID")
                         .permitAll())
