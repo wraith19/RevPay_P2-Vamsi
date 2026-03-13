@@ -87,6 +87,8 @@ public class UserServiceImpl implements IUserService {
             throw new ConflictException("Phone number already registered");
         }
 
+        validateRequiredBusinessFields(businessName, businessType, taxId, businessAddress, contactInfo);
+
         User user = User.builder()
                 .fullName(fullName)
                 .email(email)
@@ -159,7 +161,7 @@ public class UserServiceImpl implements IUserService {
     @Override
     @Transactional
     public User updateProfile(Long userId, String fullName, String phone, String businessName,
-                              String businessType, String businessAddress, String contactInfo) {
+                              String businessType, String taxId, String businessAddress, String contactInfo) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
@@ -174,6 +176,7 @@ public class UserServiceImpl implements IUserService {
         if (user.getRole() == Role.BUSINESS) {
             user.setBusinessName(businessName);
             user.setBusinessType(businessType);
+            user.setTaxId(taxId);
             user.setBusinessAddress(businessAddress);
             user.setBusinessContactInfo(contactInfo);
         }
@@ -255,8 +258,11 @@ public class UserServiceImpl implements IUserService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
-        if (user.getTransactionPin() == null) {
-            return true;
+        if (user.getTransactionPin() == null || user.getTransactionPin().isBlank()) {
+            return false;
+        }
+        if (pin == null || pin.isBlank()) {
+            return false;
         }
         return passwordEncoder.matches(pin, user.getTransactionPin());
     }
@@ -328,6 +334,7 @@ public class UserServiceImpl implements IUserService {
         user.setEnabled(enabled != null ? enabled : true);
 
         if (role == Role.BUSINESS) {
+            validateRequiredBusinessFields(businessName, businessType, taxId, businessAddress, businessContactInfo);
             user.setBusinessName(businessName);
             user.setBusinessType(businessType);
             user.setTaxId(taxId);
@@ -355,5 +362,24 @@ public class UserServiceImpl implements IUserService {
     @Override
     public long countPendingBusinessVerifications() {
         return userRepository.countByRoleAndBusinessVerified(Role.BUSINESS, false);
+    }
+
+    private void validateRequiredBusinessFields(String businessName, String businessType, String taxId,
+                                                String businessAddress, String contactInfo) {
+        if (businessName == null || businessName.isBlank()) {
+            throw new ValidationException("Business name is required");
+        }
+        if (businessType == null || businessType.isBlank()) {
+            throw new ValidationException("Business type is required");
+        }
+        if (taxId == null || taxId.isBlank()) {
+            throw new ValidationException("Tax ID is required");
+        }
+        if (businessAddress == null || businessAddress.isBlank()) {
+            throw new ValidationException("Business address is required");
+        }
+        if (contactInfo == null || contactInfo.isBlank()) {
+            throw new ValidationException("Business contact info is required");
+        }
     }
 }

@@ -895,8 +895,20 @@ textarea.form-control {
     justify-content: space-between;
 }
 
+.payment-card-credit {
+    background: linear-gradient(145deg, #0f172a 0%, #1e3a8a 55%, #2563eb 100%);
+}
+
+.payment-card-debit {
+    background: linear-gradient(145deg, #052e2b 0%, #065f46 55%, #0f766e 100%);
+}
+
 .payment-card-default {
     border: 2px solid #93c5fd;
+}
+
+.payment-card-debit.payment-card-default {
+    border-color: #99f6e4;
 }
 
 .card-type {

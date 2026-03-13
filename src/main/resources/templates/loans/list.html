@@ -19,6 +19,8 @@
                 <thead>
                     <tr>
                         <th>ID</th>
+                        <th th:if="${isAdmin}">Business</th>
+                        <th th:if="${isAdmin}">Type</th>
                         <th>Amount</th>
                         <th>Purpose</th>
                         <th>Tenure</th>
@@ -31,6 +33,11 @@
                 <tbody>
                     <tr th:each="loan : ${loans}">
                         <td th:text="${loan.id}">1</td>
+                        <td th:if="${isAdmin}">
+                            <div th:text="${loan.businessUser != null ? loan.businessUser.businessName : '-'}">Business Name</div>
+                            <div class="table-subtext" th:text="${loan.businessUser != null ? loan.businessUser.email : '-'}">business@revpay.com</div>
+                        </td>
+                        <td th:if="${isAdmin}" th:text="${loan.businessUser != null && loan.businessUser.businessType != null ? loan.businessUser.businessType : '-'}">-</td>
                         <td class="amount">$<span th:text="${#numbers.formatDecimal(loan.amount, 1, 2)}">0.00</span>
                         </td>
                         <td th:text="${loan.purpose}">Purpose</td>

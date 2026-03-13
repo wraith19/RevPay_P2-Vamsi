@@ -30,6 +30,7 @@ public class ProfileController {
             @RequestParam String phone,
             @RequestParam(required = false) String businessName,
             @RequestParam(required = false) String businessType,
+            @RequestParam(required = false) String taxId,
             @RequestParam(required = false) String businessAddress,
             @RequestParam(required = false) String businessContactInfo,
             Authentication authentication,
@@ -39,7 +40,7 @@ public class ProfileController {
                     .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
             userService.updateProfile(user.getId(), fullName, phone, businessName,
-                    businessType, businessAddress, businessContactInfo);
+                    businessType, taxId, businessAddress, businessContactInfo);
             redirectAttributes.addFlashAttribute("success", "Profile updated successfully!");
         } catch (RuntimeException e) {
             redirectAttributes.addFlashAttribute("error", e.getMessage());

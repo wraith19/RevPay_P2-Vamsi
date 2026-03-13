@@ -1,5 +1,6 @@
 package com.rev.app.controller;
 
+import com.rev.app.controller.support.TransactionPinRedirectHelper;
 import com.rev.app.entity.*;
 import com.rev.app.service.*;
 import lombok.RequiredArgsConstructor;
@@ -22,6 +23,7 @@ public class WalletController {
     private final IWalletService walletService;
     private final ITransactionService transactionService;
     private final IPaymentMethodService paymentMethodService;
+    private final TransactionPinRedirectHelper transactionPinRedirectHelper;
 
     @GetMapping("/add-funds")
     public String addFundsForm(Authentication authentication, Model model) {
@@ -43,7 +45,8 @@ public class WalletController {
             User user = userService.findByEmail(authentication.getName())
                     .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
-            String pinSetupRedirect = ensurePinConfigured(user, redirectAttributes, "/wallet/add-funds");
+            String pinSetupRedirect = transactionPinRedirectHelper.ensurePinConfigured(user, redirectAttributes,
+                    "/wallet/add-funds");
             if (pinSetupRedirect != null) {
                 return pinSetupRedirect;
             }
@@ -84,7 +87,8 @@ public class WalletController {
             User user = userService.findByEmail(authentication.getName())
                     .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
-            String pinSetupRedirect = ensurePinConfigured(user, redirectAttributes, "/wallet/withdraw");
+            String pinSetupRedirect = transactionPinRedirectHelper.ensurePinConfigured(user, redirectAttributes,
+                    "/wallet/withdraw");
             if (pinSetupRedirect != null) {
                 return pinSetupRedirect;
             }
@@ -103,12 +107,5 @@ public class WalletController {
         }
     }
 
-    private String ensurePinConfigured(User user, RedirectAttributes redirectAttributes, String returnTo) {
-        if (user.getTransactionPin() == null || user.getTransactionPin().isBlank()) {
-            redirectAttributes.addFlashAttribute("error", "Set your transaction PIN before making transactions.");
-            return "redirect:/profile/set-pin?returnTo=" + returnTo;
-        }
-        return null;
-    }
 }
 

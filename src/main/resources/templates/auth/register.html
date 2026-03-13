@@ -54,11 +54,11 @@
                 <h3 class="section-title">Business Information</h3>
                 <div class="form-row">
                     <div class="form-group">
-                        <label for="businessName">Business Name</label>
+                        <label for="businessName">Business Name *</label>
                         <input type="text" id="businessName" name="businessName" class="form-control" placeholder="My Company">
                     </div>
                     <div class="form-group">
-                        <label for="businessType">Business Type</label>
+                        <label for="businessType">Business Type *</label>
                         <select id="businessType" name="businessType" class="form-control">
                             <option value="">Select type</option>
                             <option value="Sole Proprietorship">Sole Proprietorship</option>
@@ -71,16 +71,16 @@
                 </div>
                 <div class="form-row">
                     <div class="form-group">
-                        <label for="taxId">Tax ID / EIN</label>
+                        <label for="taxId">Tax ID / EIN *</label>
                         <input type="text" id="taxId" name="taxId" class="form-control" placeholder="XX-XXXXXXX">
                     </div>
                     <div class="form-group">
-                        <label for="businessContactInfo">Contact Info</label>
+                        <label for="businessContactInfo">Contact Info *</label>
                         <input type="text" id="businessContactInfo" name="businessContactInfo" class="form-control" placeholder="Business phone/email">
                     </div>
                 </div>
                 <div class="form-group">
-                    <label for="businessAddress">Business Address</label>
+                    <label for="businessAddress">Business Address *</label>
                     <textarea id="businessAddress" name="businessAddress" class="form-control" rows="2" placeholder="Full business address"></textarea>
                 </div>
             </div>
@@ -125,8 +125,15 @@
 <script>
     function toggleBusinessFields() {
         var role = document.getElementById('role').value;
-        document.getElementById('businessFields').style.display = role === 'BUSINESS' ? 'block' : 'none';
+        var isBusiness = role === 'BUSINESS';
+        document.getElementById('businessFields').style.display = isBusiness ? 'block' : 'none';
+
+        ['businessName', 'businessType', 'taxId', 'businessContactInfo', 'businessAddress'].forEach(function (id) {
+            document.getElementById(id).required = isBusiness;
+        });
     }
+
+    toggleBusinessFields();
 </script>
 <div th:replace="~{fragments/layout :: scripts}"></div>
 </body>

@@ -20,10 +20,12 @@
             <thead>
             <tr>
                 <th>ID</th>
-                <th>Name</th>
-                <th>Email</th>
+                <th>Owner</th>
                 <th>Business</th>
+                <th>Type</th>
                 <th>Tax ID</th>
+                <th>Contact</th>
+                <th>Address</th>
                 <th>Created</th>
                 <th>Action</th>
             </tr>
@@ -31,10 +33,15 @@
             <tbody>
             <tr th:each="u : ${users}">
                 <td th:text="${u.id}">1</td>
-                <td th:text="${u.fullName}">User</td>
-                <td th:text="${u.email}">user@revpay.com</td>
+                <td>
+                    <div th:text="${u.fullName}">User</div>
+                    <div class="table-subtext" th:text="${u.email}">user@revpay.com</div>
+                </td>
                 <td th:text="${u.businessName}">Business</td>
+                <td th:text="${u.businessType != null ? u.businessType : '-'}">-</td>
                 <td th:text="${u.taxId != null ? u.taxId : '-'}">-</td>
+                <td th:text="${u.businessContactInfo != null ? u.businessContactInfo : '-'}">-</td>
+                <td th:text="${u.businessAddress != null ? u.businessAddress : '-'}">-</td>
                 <td th:text="${u.createdAt != null ? #temporals.format(u.createdAt, 'MMM dd, yyyy') : '-'}">-</td>
                 <td>
                     <form th:action="@{'/admin/business-verifications/' + ${u.id} + '/approve'}" method="post">

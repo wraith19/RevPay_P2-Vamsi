@@ -30,7 +30,7 @@ public interface IUserService {
     List<User> getPendingBusinessVerifications();
 
     User updateProfile(Long userId, String fullName, String phone, String businessName,
-                       String businessType, String businessAddress, String contactInfo);
+                       String businessType, String taxId, String businessAddress, String contactInfo);
 
     void changePassword(Long userId, String currentPassword, String newPassword);
 

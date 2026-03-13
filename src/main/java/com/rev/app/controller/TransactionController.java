@@ -1,5 +1,6 @@
 package com.rev.app.controller;
 
+import com.rev.app.controller.support.TransactionPinRedirectHelper;
 import com.rev.app.entity.*;
 import com.rev.app.service.*;
 import com.opencsv.CSVWriter;
@@ -30,6 +31,7 @@ public class TransactionController {
 
     private final IUserService userService;
     private final ITransactionService transactionService;
+    private final TransactionPinRedirectHelper transactionPinRedirectHelper;
 
     @GetMapping("/send")
     public String sendForm(Model model) {
@@ -47,7 +49,8 @@ public class TransactionController {
             User sender = userService.findByEmail(authentication.getName())
                     .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
-            String pinSetupRedirect = ensurePinConfigured(sender, redirectAttributes, "/transactions/send");
+            String pinSetupRedirect = transactionPinRedirectHelper.ensurePinConfigured(sender, redirectAttributes,
+                    "/transactions/send");
             if (pinSetupRedirect != null) {
                 return pinSetupRedirect;
             }
@@ -63,16 +66,6 @@ public class TransactionController {
             redirectAttributes.addFlashAttribute("error", e.getMessage());
             return "redirect:/transactions/send";
         }
-    }
-
-    private String ensurePinConfigured(User user,
-            org.springframework.web.servlet.mvc.support.RedirectAttributes redirectAttributes,
-            String returnTo) {
-        if (user.getTransactionPin() == null || user.getTransactionPin().isBlank()) {
-            redirectAttributes.addFlashAttribute("error", "Set your transaction PIN before making transactions.");
-            return "redirect:/profile/set-pin?returnTo=" + returnTo;
-        }
-        return null;
     }
 
     @GetMapping("/history")

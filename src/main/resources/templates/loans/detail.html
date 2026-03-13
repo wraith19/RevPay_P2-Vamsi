@@ -54,6 +54,30 @@
             </div>
         </div>
 
+        <div th:if="${isAdmin}" class="card">
+            <div class="page-header mb-3">
+                <h3>Business Profile</h3>
+            </div>
+            <div class="detail-grid">
+                <div class="detail-item"><span class="detail-label">Business Name</span><span class="detail-value"
+                        th:text="${loan.businessUser != null && loan.businessUser.businessName != null ? loan.businessUser.businessName : '-'}">-</span></div>
+                <div class="detail-item"><span class="detail-label">Business Type</span><span class="detail-value"
+                        th:text="${loan.businessUser != null && loan.businessUser.businessType != null ? loan.businessUser.businessType : '-'}">-</span></div>
+                <div class="detail-item"><span class="detail-label">Business Owner</span><span class="detail-value"
+                        th:text="${loan.businessUser != null ? loan.businessUser.fullName : '-'}">-</span></div>
+                <div class="detail-item"><span class="detail-label">Business Email</span><span class="detail-value"
+                        th:text="${loan.businessUser != null ? loan.businessUser.email : '-'}">-</span></div>
+                <div class="detail-item"><span class="detail-label">Business Phone</span><span class="detail-value"
+                        th:text="${loan.businessUser != null ? loan.businessUser.phone : '-'}">-</span></div>
+                <div class="detail-item"><span class="detail-label">Tax ID</span><span class="detail-value"
+                        th:text="${loan.businessUser != null && loan.businessUser.taxId != null ? loan.businessUser.taxId : '-'}">-</span></div>
+                <div class="detail-item"><span class="detail-label">Contact Info</span><span class="detail-value"
+                        th:text="${loan.businessUser != null && loan.businessUser.businessContactInfo != null ? loan.businessUser.businessContactInfo : '-'}">-</span></div>
+                <div class="detail-item"><span class="detail-label">Business Address</span><span class="detail-value"
+                        th:text="${loan.businessUser != null && loan.businessUser.businessAddress != null ? loan.businessUser.businessAddress : '-'}">-</span></div>
+            </div>
+        </div>
+
         <div th:if="${loan.status.name() == 'PENDING' and isAdmin}" class="card form-card">
             <h3>Admin Actions</h3>
             <p class="form-hint">Approve or reject this pending loan application.</p>

@@ -49,6 +49,7 @@
             <tr>
                 <th>ID</th>
                 <th>Business User</th>
+                <th>Business Type</th>
                 <th>Amount</th>
                 <th>Applied</th>
                 <th>Action</th>
@@ -57,7 +58,11 @@
             <tbody>
             <tr th:each="loan : ${pendingLoans}">
                 <td th:text="${loan.id}">1</td>
-                <td th:text="${loan.businessUser != null ? loan.businessUser.email : '-'}">business@revpay.com</td>
+                <td>
+                    <div th:text="${loan.businessUser != null ? loan.businessUser.businessName : '-'}">Business Name</div>
+                    <div class="table-subtext" th:text="${loan.businessUser != null ? loan.businessUser.email : '-'}">business@revpay.com</div>
+                </td>
+                <td th:text="${loan.businessUser != null && loan.businessUser.businessType != null ? loan.businessUser.businessType : '-'}">-</td>
                 <td>$<span th:text="${#numbers.formatDecimal(loan.amount, 1, 2)}">0.00</span></td>
                 <td th:text="${#temporals.format(loan.appliedAt, 'MMM dd, yyyy')}">Jan 01, 2026</td>
                 <td><a th:href="@{'/loans/' + ${loan.id}}" class="btn btn-sm btn-secondary">Review</a></td>

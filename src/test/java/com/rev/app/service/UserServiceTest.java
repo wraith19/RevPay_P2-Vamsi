@@ -3,6 +3,7 @@ package com.rev.app.service;
 import com.rev.app.entity.*;
 import com.rev.app.repository.*;
 import com.rev.app.service.impl.UserServiceImpl;
+import com.rev.app.exception.ValidationException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -12,6 +13,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.Optional;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -101,6 +103,28 @@ class UserServiceTest {
     }
 
     @Test
+    void testRegisterBusinessUser_RequiresBusinessType() {
+        when(userRepository.existsByEmail("biz@example.com")).thenReturn(false);
+        when(userRepository.existsByPhone("1234567890")).thenReturn(false);
+
+        ValidationException ex = assertThrows(ValidationException.class, () ->
+                userService.registerBusinessUser(
+                        "Biz Owner",
+                        "biz@example.com",
+                        "1234567890",
+                        "password",
+                        "Biz Corp",
+                        " ",
+                        "TAX-123",
+                        "1 Main St",
+                        "biz@example.com",
+                        List.of()));
+
+        assertEquals("Business type is required", ex.getMessage());
+        verify(userRepository, never()).save(any(User.class));
+    }
+
+    @Test
     void testChangePassword_Success() {
         when(userRepository.findById(1L)).thenReturn(Optional.of(testUser));
         when(passwordEncoder.matches("old_pass", "encoded_password")).thenReturn(true);
@@ -129,6 +153,40 @@ class UserServiceTest {
 
         assertDoesNotThrow(() -> userService.setTransactionPin(1L, "1234"));
         verify(userRepository).save(any(User.class));
+    }
+
+    @Test
+    void testVerifyTransactionPin_ReturnsFalseWhenUserHasNoPinConfigured() {
+        testUser.setTransactionPin(null);
+        when(userRepository.findById(1L)).thenReturn(Optional.of(testUser));
+
+        boolean result = userService.verifyTransactionPin(1L, "1234");
+
+        assertFalse(result);
+        verify(passwordEncoder, never()).matches(any(), any());
+    }
+
+    @Test
+    void testVerifyTransactionPin_ReturnsFalseWhenProvidedPinIsBlank() {
+        testUser.setTransactionPin("encoded_pin");
+        when(userRepository.findById(1L)).thenReturn(Optional.of(testUser));
+
+        boolean result = userService.verifyTransactionPin(1L, " ");
+
+        assertFalse(result);
+        verify(passwordEncoder, never()).matches(any(), any());
+    }
+
+    @Test
+    void testVerifyTransactionPin_ReturnsTrueWhenPinMatches() {
+        testUser.setTransactionPin("encoded_pin");
+        when(userRepository.findById(1L)).thenReturn(Optional.of(testUser));
+        when(passwordEncoder.matches("1234", "encoded_pin")).thenReturn(true);
+
+        boolean result = userService.verifyTransactionPin(1L, "1234");
+
+        assertTrue(result);
+        verify(passwordEncoder).matches("1234", "encoded_pin");
     }
 }
 

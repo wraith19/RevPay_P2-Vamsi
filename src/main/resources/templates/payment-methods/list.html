@@ -17,7 +17,7 @@
             </div>
             <div class="cards-grid" th:unless="${#lists.isEmpty(paymentMethods)}">
                 <div th:each="pm : ${paymentMethods}" class="payment-card"
-                    th:classappend="${pm.isDefault} ? 'payment-card-default' : ''">
+                    th:classappend="(${pm.type.name() == 'DEBIT_CARD'} ? ' payment-card-debit' : ' payment-card-credit') + (${pm.isDefault} ? ' payment-card-default' : '')">
                     <div class="card-type" th:text="${pm.type}">CREDIT_CARD</div>
                     <div class="card-number" th:text="${pm.maskedCardNumber}">****-****-****-1234</div>
                     <div class="card-holder" th:text="${pm.cardHolderName}">John Doe</div>
